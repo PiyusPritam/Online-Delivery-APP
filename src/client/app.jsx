@@ -9,7 +9,7 @@ import Login from './components/Login.jsx';
 import { UserService } from './services/UserService.js';
 import './app.css';
 
-// Error Boundary Component
+// Error Boundary Component with enhanced error display
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -32,12 +32,34 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-          <h2>Something went wrong</h2>
-          <details style={{ whiteSpace: 'pre-wrap', background: '#f0f0f0', padding: '10px', borderRadius: '4px' }}>
-            <summary>Error Details</summary>
-            <p><strong>Error:</strong> {this.state.error && this.state.error.toString()}</p>
-            <p><strong>Stack:</strong> {this.state.errorInfo.componentStack}</p>
-          </details>
+          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <div style={{ 
+              background: '#ffebee', 
+              color: '#c62828', 
+              padding: '20px', 
+              borderRadius: '8px',
+              border: '1px solid #ffcdd2',
+              marginBottom: '20px'
+            }}>
+              <h2 style={{ margin: '0 0 15px 0' }}>❌ Application Error</h2>
+              <p style={{ margin: '0 0 15px 0' }}>
+                Something went wrong with the delivery application. This is usually a temporary issue.
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#d32f2f',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                🔄 Reload Application
+              </button>
+            </div>
+          </div>
         </div>
       );
     }
@@ -46,18 +68,20 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-export default function App() {
+export default function App({ onBackToMain, integratedMode = false }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentView, setCurrentView] = useState('products');
   const [cart, setCart] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [authError, setAuthError] = useState(null);
   const [debugInfo, setDebugInfo] = useState([]);
 
   const addDebugInfo = (message) => {
-    console.log('DEBUG:', message);
-    setDebugInfo(prev => [...prev, `${new Date().toLocaleTimeString()}: ${message}`]);
+    const timestamp = new Date().toLocaleTimeString();
+    console.log('APP DEBUG:', message);
+    setDebugInfo(prev => [...prev, `${timestamp}: ${message}`]);
   };
 
   useEffect(() => {
@@ -72,78 +96,89 @@ export default function App() {
   const initializeApp = async () => {
     try {
       addDebugInfo('Starting app initialization');
+      setError('');
+      setAuthError(null);
       
-      // Check if we're in ServiceNow environment
+      // Enhanced environment check
       if (typeof window === 'undefined') {
-        throw new Error('Window object not available');
+        throw new Error('Window object not available - app must run in browser environment');
       }
       
-      addDebugInfo('Window object available');
+      addDebugInfo(`Environment: ${window.location.href}`);
+      addDebugInfo(`User Agent: ${navigator.userAgent.substring(0, 100)}...`);
       
-      // Wait for ServiceNow globals
-      addDebugInfo('Waiting for ServiceNow globals...');
-      await waitForServiceNowGlobals();
+      // Check if we're in ServiceNow context
+      const isServiceNowContext = window.location.href.includes('service-now.com') || 
+                                 window.location.href.includes('servicenow.com') ||
+                                 !!window.g_user || 
+                                 !!window.NOW;
+                                 
+      addDebugInfo(`ServiceNow context detected: ${isServiceNowContext}`);
       
-      addDebugInfo('ServiceNow globals ready');
-      addDebugInfo(`g_user: ${window.g_user ? 'Available' : 'Not available'}`);
-      addDebugInfo(`g_ck: ${window.g_ck ? 'Available' : 'Not available'}`);
+      if (!isServiceNowContext) {
+        addDebugInfo('WARNING: Not in ServiceNow context - authentication may fail');
+      }
       
       const userService = new UserService();
       addDebugInfo('UserService created');
       
-      const user = await userService.getCurrentUser();
-      addDebugInfo(`User fetched: ${user ? 'Success' : 'Failed'}`);
-      
-      if (user) {
-        addDebugInfo(`User name: ${user.name || 'No name'}`);
-        setCurrentUser(user);
+      try {
+        const user = await userService.getCurrentUser();
+        addDebugInfo(`User fetched: ${user ? 'Success' : 'Failed'}`);
+        
+        if (user) {
+          const userName = typeof user.name === 'object' ? user.name.display_value : user.name;
+          const userNameFull = typeof user.user_name === 'object' ? user.user_name.display_value : user.user_name;
+          
+          addDebugInfo(`User authenticated: ${userName || userNameFull || 'Unknown user'}`);
+          setCurrentUser(user);
+        } else {
+          throw new Error('Authentication returned no user data');
+        }
+      } catch (userError) {
+        addDebugInfo(`User authentication failed: ${userError.message}`);
+        
+        // Store authentication errors for the login component
+        setAuthError({
+          message: userError.message,
+          details: userService.getAuthErrors ? userService.getAuthErrors() : [],
+          timestamp: new Date().toLocaleString()
+        });
+        
+        // Don't throw here - let the Login component handle it
+        setCurrentUser(null);
       }
       
     } catch (err) {
-      const errorMessage = `Initialization failed: ${err.message}`;
+      const errorMessage = `App initialization failed: ${err.message}`;
       console.error(errorMessage, err);
       addDebugInfo(errorMessage);
       setError(errorMessage);
     } finally {
       setLoading(false);
-      addDebugInfo('Initialization complete');
+      addDebugInfo('App initialization complete');
     }
-  };
-
-  const waitForServiceNowGlobals = () => {
-    return new Promise((resolve, reject) => {
-      let attempts = 0;
-      const maxAttempts = 50; // 10 seconds max
-      
-      const checkGlobals = () => {
-        attempts++;
-        addDebugInfo(`Checking globals attempt ${attempts}/${maxAttempts}`);
-        
-        if (window.g_user && window.g_ck) {
-          addDebugInfo('ServiceNow globals found!');
-          resolve();
-        } else if (attempts >= maxAttempts) {
-          reject(new Error('ServiceNow globals not available after 10 seconds'));
-        } else {
-          setTimeout(checkGlobals, 200);
-        }
-      };
-      
-      checkGlobals();
-    });
   };
 
   const addToCart = (product, quantity) => {
     try {
-      addDebugInfo(`Adding to cart: ${product.name || 'Unknown product'}`);
+      const productName = typeof product.name === 'object' ? product.name.display_value : product.name;
+      addDebugInfo(`Adding to cart: ${productName || 'Unknown product'} (${quantity})`);
+      
       setCart(prev => {
-        const existing = prev.find(item => item.product.sys_id === product.sys_id);
+        const productId = typeof product.sys_id === 'object' ? product.sys_id.value : product.sys_id;
+        const existing = prev.find(item => {
+          const itemId = typeof item.product.sys_id === 'object' ? item.product.sys_id.value : item.product.sys_id;
+          return itemId === productId;
+        });
+        
         if (existing) {
-          return prev.map(item =>
-            item.product.sys_id === product.sys_id
+          return prev.map(item => {
+            const itemId = typeof item.product.sys_id === 'object' ? item.product.sys_id.value : item.product.sys_id;
+            return itemId === productId
               ? { ...item, quantity: item.quantity + quantity }
-              : item
-          );
+              : item;
+          });
         }
         return [...prev, { product, quantity }];
       });
@@ -156,14 +191,18 @@ export default function App() {
   const updateCartQuantity = (productId, newQuantity) => {
     try {
       if (newQuantity <= 0) {
-        setCart(prev => prev.filter(item => item.product.sys_id !== productId));
+        setCart(prev => prev.filter(item => {
+          const itemId = typeof item.product.sys_id === 'object' ? item.product.sys_id.value : item.product.sys_id;
+          return itemId !== productId;
+        }));
       } else {
         setCart(prev =>
-          prev.map(item =>
-            item.product.sys_id === productId
+          prev.map(item => {
+            const itemId = typeof item.product.sys_id === 'object' ? item.product.sys_id.value : item.product.sys_id;
+            return itemId === productId
               ? { ...item, quantity: newQuantity }
-              : item
-          )
+              : item;
+          })
         );
       }
     } catch (err) {
@@ -172,7 +211,10 @@ export default function App() {
     }
   };
 
-  const clearCart = () => setCart([]);
+  const clearCart = () => {
+    addDebugInfo('Cart cleared');
+    setCart([]);
+  };
 
   const renderCurrentView = () => {
     try {
@@ -200,77 +242,125 @@ export default function App() {
     } catch (err) {
       console.error('Error rendering view:', err);
       return (
-        <div className="alert alert-error">
-          Error loading view: {err.message}
+        <div style={{ 
+          padding: '20px', 
+          background: '#ffebee', 
+          color: '#c62828', 
+          borderRadius: '4px',
+          margin: '20px'
+        }}>
+          <h3>❌ View Rendering Error</h3>
+          <p>Error loading the {currentView} view: {err.message}</p>
+          <button
+            onClick={() => setCurrentView('products')}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#d32f2f',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Return to Products
+          </button>
         </div>
       );
     }
   };
 
-  // Show debug information if there's an error or still loading
-  if (loading || error) {
+  // Show loading state during initialization
+  if (loading) {
     return (
       <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-        <h1>🚚 Quick Delivery</h1>
-        
-        {loading && (
-          <div>
+        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <h1>🚚 Quick Delivery</h1>
             <p>Loading application...</p>
             <div className="spinner" style={{ 
               border: '4px solid #f3f3f3',
-              borderTop: '4px solid #3498db',
+              borderTop: '4px solid #007bff',
               borderRadius: '50%',
               width: '30px',
               height: '30px',
               animation: 'spin 2s linear infinite',
-              margin: '10px 0'
+              margin: '10px auto'
             }}></div>
           </div>
-        )}
-        
-        {error && (
-          <div style={{ background: '#ffebee', padding: '10px', borderRadius: '4px', marginBottom: '20px' }}>
-            <h3>Error:</h3>
-            <p>{error}</p>
-          </div>
-        )}
-        
-        <details style={{ marginTop: '20px' }}>
-          <summary>Debug Information ({debugInfo.length} entries)</summary>
-          <div style={{ 
-            background: '#f5f5f5', 
-            padding: '10px', 
-            borderRadius: '4px', 
-            marginTop: '10px',
-            maxHeight: '300px',
-            overflow: 'auto',
-            fontSize: '12px',
-            fontFamily: 'monospace'
-          }}>
-            {debugInfo.map((info, index) => (
-              <div key={index}>{info}</div>
-            ))}
-          </div>
-        </details>
-
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
+          
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
       </div>
     );
   }
 
+  // Show app initialization error
+  if (error) {
+    return (
+      <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ 
+            background: '#ffebee', 
+            color: '#c62828', 
+            padding: '20px', 
+            borderRadius: '8px',
+            border: '1px solid #ffcdd2',
+            marginBottom: '20px'
+          }}>
+            <h2 style={{ margin: '0 0 15px 0' }}>❌ Application Error</h2>
+            <p style={{ margin: '0 0 15px 0' }}>{error}</p>
+            <button
+              onClick={initializeApp}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#d32f2f',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                marginRight: '10px'
+              }}
+            >
+              🔄 Retry Initialization
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#666',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              ↻ Reload Page
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login if no current user
   if (!currentUser) {
     return (
       <ErrorBoundary>
-        <Login onLogin={setCurrentUser} debugInfo={debugInfo} />
+        <Login 
+          onLogin={setCurrentUser} 
+          debugInfo={debugInfo}
+          authError={authError}
+        />
       </ErrorBoundary>
     );
   }
 
+  // Main app interface
   return (
     <ErrorBoundary>
       <div className="delivery-app">
@@ -281,6 +371,8 @@ export default function App() {
           cartItemCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
           darkMode={darkMode}
           onToggleDarkMode={() => setDarkMode(!darkMode)}
+          integratedMode={integratedMode}
+          onBackToMain={onBackToMain}
         />
         <main className="main-content">
           {renderCurrentView()}

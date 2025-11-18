@@ -4,9 +4,10 @@ import { UserService } from '../services/UserService.js';
 export default function Login({ onLogin, debugInfo = [] }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [detailedErrors, setDetailedErrors] = useState([]);
   const [isNewUser, setIsNewUser] = useState(false);
-  const [globalsReady, setGlobalsReady] = useState(false);
-  const [currentUserName, setCurrentUserName] = useState('');
+  const [authStatus, setAuthStatus] = useState('initializing');
+  const [environmentInfo, setEnvironmentInfo] = useState({});
   const [localDebugInfo, setLocalDebugInfo] = useState([]);
   const [formData, setFormData] = useState({
     email: '',
@@ -22,26 +23,74 @@ export default function Login({ onLogin, debugInfo = [] }) {
 
   const userService = new UserService();
 
-  // Check for ServiceNow globals availability
+  // Environment detection on mount
   useEffect(() => {
-    addDebugInfo('Login component mounted');
-    addDebugInfo('Checking for ServiceNow globals...');
-    
-    const checkGlobals = () => {
-      addDebugInfo(`Checking globals - g_user: ${!!window.g_user}, g_ck: ${!!window.g_ck}`);
-      
-      if (window.g_user && window.g_ck) {
-        addDebugInfo(`Found globals - userName: ${window.g_user.userName}, userID: ${window.g_user.userID}`);
-        setGlobalsReady(true);
-        setCurrentUserName(window.g_user.userName || 'Unknown');
-      } else {
-        addDebugInfo('Globals not ready, retrying in 200ms...');
-        setTimeout(checkGlobals, 200);
-      }
-    };
-    
-    checkGlobals();
+    addDebugInfo('Login component mounted - starting environment detection');
+    detectEnvironment();
+    attemptAuthentication();
   }, []);
+
+  const detectEnvironment = () => {
+    const env = {
+      windowAvailable: typeof window !== 'undefined',
+      location: typeof window !== 'undefined' ? window.location.href : 'N/A',
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'N/A',
+      serviceNowGlobals: {
+        g_user: typeof window !== 'undefined' && !!window.g_user,
+        g_ck: typeof window !== 'undefined' && !!window.g_ck,
+        NOW: typeof window !== 'undefined' && !!window.NOW
+      },
+      domElements: {
+        userMeta: !!document.querySelector('meta[name="user-sys-id"]'),
+        userNameMeta: !!document.querySelector('meta[name="user-name"]'),
+        csrfMeta: !!document.querySelector('meta[name="csrf-token"]'),
+        sessionMeta: !!document.querySelector('meta[name="session-token"]')
+      },
+      cookies: typeof document !== 'undefined' ? document.cookie.split(';').length : 0
+    };
+
+    setEnvironmentInfo(env);
+    addDebugInfo(`Environment detected: ${JSON.stringify(env, null, 2)}`);
+  };
+
+  const attemptAuthentication = async () => {
+    try {
+      setAuthStatus('authenticating');
+      setError('');
+      setDetailedErrors([]);
+      addDebugInfo('Starting authentication attempt...');
+
+      const user = await userService.getCurrentUser();
+      
+      if (user) {
+        addDebugInfo(`Authentication successful: ${user.name || user.user_name}`);
+        
+        // Get customer profile
+        const userId = typeof user.sys_id === 'object' ? user.sys_id.value : user.sys_id;
+        let customerProfile = await userService.getCustomerProfile(userId);
+
+        if (!customerProfile) {
+          addDebugInfo('No customer profile found - switching to new user mode');
+          setIsNewUser(true);
+          setAuthStatus('needs_profile');
+          return;
+        }
+
+        addDebugInfo('Customer profile found - completing authentication');
+        setAuthStatus('authenticated');
+        onLogin({ ...user, customerProfile });
+      } else {
+        throw new Error('No user data returned from authentication service');
+      }
+    } catch (err) {
+      console.error('Authentication failed:', err);
+      addDebugInfo(`Authentication failed: ${err.message}`);
+      
+      setError(err.message);
+      setDetailedErrors(userService.getAuthErrors());
+      setAuthStatus('failed');
+    }
+  };
 
   const handleInputChange = (e) => {
     setFormData({
@@ -55,31 +104,22 @@ export default function Login({ onLogin, debugInfo = [] }) {
     setLoading(true);
     setError('');
     
-    addDebugInfo('Form submitted');
+    addDebugInfo('Profile form submitted');
 
     try {
-      addDebugInfo('Getting current user...');
-      // First get the current ServiceNow user
-      const user = await userService.getCurrentUser();
-      addDebugInfo(`User service response: ${user ? 'Success' : 'No user returned'}`);
-      
-      if (!user) {
-        throw new Error('Unable to authenticate user - no user data returned');
-      }
+      if (isNewUser) {
+        addDebugInfo('Creating customer profile...');
+        
+        // Get current user first
+        const user = await userService.getCurrentUser();
+        if (!user) {
+          throw new Error('Unable to get current user for profile creation');
+        }
 
-      addDebugInfo(`User data received: ${JSON.stringify(user, null, 2)}`);
-
-      // Check if customer profile exists
-      const userId = typeof user.sys_id === 'object' ? user.sys_id.value : user.sys_id;
-      addDebugInfo(`Checking customer profile for user ID: ${userId}`);
-      
-      let customerProfile = await userService.getCustomerProfile(userId);
-      addDebugInfo(`Customer profile: ${customerProfile ? 'Found' : 'Not found'}`);
-
-      if (!customerProfile && isNewUser) {
-        addDebugInfo('Creating new customer profile...');
-        // Create new customer profile
-        customerProfile = await userService.createCustomerProfile({
+        const userId = typeof user.sys_id === 'object' ? user.sys_id.value : user.sys_id;
+        
+        // Create customer profile
+        const customerProfile = await userService.createCustomerProfile({
           user_id: userId,
           email: formData.email,
           first_name: formData.firstName,
@@ -87,37 +127,120 @@ export default function Login({ onLogin, debugInfo = [] }) {
           phone: formData.phone,
           active: true
         });
+
         addDebugInfo('Customer profile created successfully');
+        setAuthStatus('authenticated');
+        onLogin({ ...user, customerProfile });
+      } else {
+        // Retry authentication
+        await attemptAuthentication();
       }
-
-      if (!customerProfile) {
-        addDebugInfo('No customer profile - switching to new user mode');
-        setIsNewUser(true);
-        setError('Please complete your profile to continue');
-        return;
-      }
-
-      addDebugInfo('Login successful - calling onLogin');
-      // Success - user is logged in with customer profile
-      onLogin({ ...user, customerProfile });
     } catch (err) {
-      const errorMessage = err.message || 'Login failed';
-      addDebugInfo(`Login error: ${errorMessage}`);
-      console.error('Login error:', err);
+      const errorMessage = err.message || 'Profile creation failed';
+      addDebugInfo(`Form submission error: ${errorMessage}`);
       setError(errorMessage);
+      setDetailedErrors(userService.getAuthErrors());
     } finally {
       setLoading(false);
     }
   };
 
-  // Show loading while waiting for ServiceNow globals
-  if (!globalsReady) {
+  const renderEnvironmentInfo = () => (
+    <div style={{ 
+      background: '#f8f9fa', 
+      border: '1px solid #dee2e6', 
+      borderRadius: '4px', 
+      padding: '15px', 
+      marginBottom: '20px',
+      fontSize: '12px',
+      fontFamily: 'monospace'
+    }}>
+      <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontFamily: 'Arial, sans-serif' }}>Environment Information</h4>
+      <div><strong>Status:</strong> {authStatus}</div>
+      <div><strong>Location:</strong> {environmentInfo.location}</div>
+      <div><strong>ServiceNow Globals:</strong></div>
+      <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
+        <li>g_user: {environmentInfo.serviceNowGlobals?.g_user ? '✅ Available' : '❌ Missing'}</li>
+        <li>g_ck: {environmentInfo.serviceNowGlobals?.g_ck ? '✅ Available' : '❌ Missing'}</li>
+        <li>NOW: {environmentInfo.serviceNowGlobals?.NOW ? '✅ Available' : '❌ Missing'}</li>
+      </ul>
+      <div><strong>DOM Elements:</strong></div>
+      <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
+        <li>User Meta: {environmentInfo.domElements?.userMeta ? '✅ Found' : '❌ Missing'}</li>
+        <li>CSRF Token: {environmentInfo.domElements?.csrfMeta ? '✅ Found' : '❌ Missing'}</li>
+      </ul>
+      <div><strong>Cookies:</strong> {environmentInfo.cookies} available</div>
+    </div>
+  );
+
+  const renderDetailedErrors = () => {
+    if (detailedErrors.length === 0) return null;
+
+    return (
+      <div style={{ 
+        background: '#fff5f5', 
+        border: '1px solid #fed7d7', 
+        borderRadius: '4px', 
+        padding: '15px', 
+        marginBottom: '20px' 
+      }}>
+        <h4 style={{ margin: '0 0 10px 0', color: '#c53030' }}>Authentication Error Details</h4>
+        <div style={{ maxHeight: '200px', overflow: 'auto' }}>
+          {detailedErrors.map((error, index) => (
+            <div key={index} style={{ 
+              marginBottom: '10px', 
+              padding: '8px', 
+              background: '#fed7d7', 
+              borderRadius: '4px',
+              fontSize: '12px',
+              fontFamily: 'monospace'
+            }}>
+              <div><strong>{error.timestamp} - {error.method}:</strong></div>
+              <div style={{ color: '#c53030' }}>{error.error}</div>
+              {error.statusCode && <div><strong>Status:</strong> {error.statusCode}</div>}
+              {error.details && (
+                <details style={{ marginTop: '5px' }}>
+                  <summary>Technical Details</summary>
+                  <pre style={{ fontSize: '10px', marginTop: '5px', whiteSpace: 'pre-wrap' }}>
+                    {error.details}
+                  </pre>
+                </details>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderRetryButton = () => (
+    <button
+      type="button"
+      onClick={attemptAuthentication}
+      style={{
+        width: '100%',
+        padding: '12px',
+        backgroundColor: '#17a2b8',
+        color: 'white',
+        border: 'none',
+        borderRadius: '4px',
+        fontSize: '16px',
+        cursor: 'pointer',
+        marginBottom: '15px'
+      }}
+    >
+      🔄 Retry Authentication
+    </button>
+  );
+
+  // Show loading state during initial authentication
+  if (authStatus === 'initializing' || authStatus === 'authenticating') {
     return (
       <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-        <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '20px' }}>
             <h1>🚚 Quick Delivery</h1>
-            <p>Initializing application...</p>
+            <p>{authStatus === 'initializing' ? 'Initializing application...' : 'Authenticating user...'}</p>
             <div style={{ 
               border: '4px solid #f3f3f3',
               borderTop: '4px solid #3498db',
@@ -128,6 +251,8 @@ export default function Login({ onLogin, debugInfo = [] }) {
               margin: '10px auto'
             }}></div>
           </div>
+
+          {renderEnvironmentInfo()}
 
           <details style={{ marginTop: '20px' }}>
             <summary>Initialization Debug Info ({localDebugInfo.length + debugInfo.length} entries)</summary>
@@ -146,14 +271,6 @@ export default function Login({ onLogin, debugInfo = [] }) {
               ))}
             </div>
           </details>
-
-          <div style={{ marginTop: '20px', fontSize: '14px', color: '#666' }}>
-            <strong>Environment Check:</strong>
-            <div>• Window object: {typeof window !== 'undefined' ? '✓' : '✗'}</div>
-            <div>• g_user: {typeof window !== 'undefined' && window.g_user ? '✓' : '✗'}</div>
-            <div>• g_ck: {typeof window !== 'undefined' && window.g_ck ? '✓' : '✗'}</div>
-            <div>• Location: {typeof window !== 'undefined' ? window.location.href : 'N/A'}</div>
-          </div>
         </div>
 
         <style>{`
@@ -168,124 +285,134 @@ export default function Login({ onLogin, debugInfo = [] }) {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '600px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
           <h1>🚚 Quick Delivery</h1>
-          <p>Welcome! Please {isNewUser ? 'complete your profile' : 'sign in'} to continue</p>
+          <p>
+            {authStatus === 'failed' && 'Authentication failed. Please review the errors below.'}
+            {authStatus === 'needs_profile' && 'Please complete your profile to continue.'}
+            {authStatus === 'authenticated' && 'Welcome! Completing setup...'}
+          </p>
         </div>
+
+        {renderEnvironmentInfo()}
 
         {error && (
           <div style={{ 
             background: '#ffebee', 
             color: '#c62828', 
-            padding: '10px', 
+            padding: '15px', 
             borderRadius: '4px', 
-            marginBottom: '20px' 
+            marginBottom: '20px',
+            border: '1px solid #ffcdd2'
           }}>
-            {error}
+            <h4 style={{ margin: '0 0 10px 0' }}>❌ Authentication Error</h4>
+            <p style={{ margin: '0' }}>{error}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
-          {isNewUser && (
-            <>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Email Address</label>
-                <input
-                  type="email"
-                  name="email"
-                  style={{ 
-                    width: '100%', 
-                    padding: '10px', 
-                    border: '1px solid #ddd', 
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                  }}
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
+        {renderDetailedErrors()}
 
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>First Name</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  style={{ 
-                    width: '100%', 
-                    padding: '10px', 
-                    border: '1px solid #ddd', 
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                  }}
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
+        {authStatus === 'failed' && renderRetryButton()}
 
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Last Name</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  style={{ 
-                    width: '100%', 
-                    padding: '10px', 
-                    border: '1px solid #ddd', 
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                  }}
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
+        {(authStatus === 'needs_profile' || authStatus === 'failed') && (
+          <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
+            {isNewUser && (
+              <>
+                <div style={{ marginBottom: '15px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Email Address</label>
+                  <input
+                    type="email"
+                    name="email"
+                    style={{ 
+                      width: '100%', 
+                      padding: '10px', 
+                      border: '1px solid #ddd', 
+                      borderRadius: '4px',
+                      fontSize: '14px'
+                    }}
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
 
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Phone Number</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  style={{ 
-                    width: '100%', 
-                    padding: '10px', 
-                    border: '1px solid #ddd', 
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                  }}
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </>
-          )}
+                <div style={{ marginBottom: '15px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>First Name</label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    style={{ 
+                      width: '100%', 
+                      padding: '10px', 
+                      border: '1px solid #ddd', 
+                      borderRadius: '4px',
+                      fontSize: '14px'
+                    }}
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
 
-          <button
-            type="submit"
-            style={{
-              width: '100%',
-              padding: '12px',
-              backgroundColor: loading ? '#ccc' : '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '16px',
-              cursor: loading ? 'not-allowed' : 'pointer'
-            }}
-            disabled={loading}
-          >
-            {loading ? 'Please wait...' : (isNewUser ? 'Complete Profile' : 'Continue')}
-          </button>
-        </form>
+                <div style={{ marginBottom: '15px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Last Name</label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    style={{ 
+                      width: '100%', 
+                      padding: '10px', 
+                      border: '1px solid #ddd', 
+                      borderRadius: '4px',
+                      fontSize: '14px'
+                    }}
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
 
-        <div style={{ textAlign: 'center', color: '#666', fontSize: '14px' }}>
-          <p>Logged in as: <strong>{currentUserName}</strong></p>
-        </div>
+                <div style={{ marginBottom: '15px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Phone Number</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    style={{ 
+                      width: '100%', 
+                      padding: '10px', 
+                      border: '1px solid #ddd', 
+                      borderRadius: '4px',
+                      fontSize: '14px'
+                    }}
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </>
+            )}
+
+            <button
+              type="submit"
+              style={{
+                width: '100%',
+                padding: '12px',
+                backgroundColor: loading ? '#ccc' : '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '16px',
+                cursor: loading ? 'not-allowed' : 'pointer'
+              }}
+              disabled={loading}
+            >
+              {loading ? 'Please wait...' : (isNewUser ? 'Complete Profile' : 'Continue')}
+            </button>
+          </form>
+        )}
 
         <details style={{ marginTop: '20px' }}>
-          <summary>Login Debug Info ({localDebugInfo.length} entries)</summary>
+          <summary>Debug Information ({localDebugInfo.length} entries)</summary>
           <div style={{ 
             background: '#f5f5f5', 
             padding: '10px', 
@@ -301,6 +428,23 @@ export default function Login({ onLogin, debugInfo = [] }) {
             ))}
           </div>
         </details>
+
+        <div style={{ 
+          marginTop: '20px', 
+          padding: '15px', 
+          background: '#e3f2fd', 
+          borderRadius: '4px',
+          fontSize: '14px'
+        }}>
+          <h4 style={{ margin: '0 0 10px 0' }}>🛠️ Troubleshooting Tips</h4>
+          <ul style={{ margin: '0', paddingLeft: '20px' }}>
+            <li>Ensure you're accessing the app through ServiceNow (not directly)</li>
+            <li>Check that you're logged into ServiceNow in another tab</li>
+            <li>Try refreshing the page to reinitialize ServiceNow context</li>
+            <li>Clear browser cache and cookies if issues persist</li>
+            <li>Contact system administrator if problems continue</li>
+          </ul>
+        </div>
       </div>
     </div>
   );

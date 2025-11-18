@@ -7,7 +7,9 @@ export default function Header({
   onViewChange, 
   cartItemCount, 
   darkMode, 
-  onToggleDarkMode 
+  onToggleDarkMode,
+  integratedMode = false,
+  onBackToMain
 }) {
   const userName = typeof currentUser?.name === 'object' 
     ? currentUser.name.display_value 
@@ -22,10 +24,15 @@ export default function Header({
   ];
 
   return (
-    <header className="app-header">
+    <header className={`app-header ${integratedMode ? 'integrated-header' : ''}`}>
       <div className="header-container">
         <div className="header-left">
-          <h1 className="app-logo">🚚 Quick Delivery</h1>
+          <h1 className="app-logo">
+            {integratedMode ? '🛒 Shopping' : '🚚 Quick Delivery'}
+          </h1>
+          {integratedMode && (
+            <p className="app-subtitle">Browse and order your favorites</p>
+          )}
         </div>
         
         <nav className="header-nav">

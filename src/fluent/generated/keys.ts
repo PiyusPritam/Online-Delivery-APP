@@ -5,6 +5,10 @@ declare global {
         namespace Internal {
             interface Keys extends KeysRegistry {
                 explicit: {
+                    '18c48759c3593210a7db12d4e4013122': {
+                        table: 'sys_scope_privilege'
+                        id: '18c48759c3593210a7db12d4e4013122'
+                    }
                     apple_prod: {
                         table: 'x_1599224_online_d_product'
                         id: 'b5ff1f32475f418794ef37fcb960963c'
@@ -36,6 +40,10 @@ declare global {
                     butter_prod: {
                         table: 'x_1599224_online_d_product'
                         id: 'd8795681fd484eefa9b5a83b395c55bf'
+                    }
+                    c8c4c359c3593210a7db12d4e40131b7: {
+                        table: 'sys_scope_privilege'
+                        id: 'c8c4c359c3593210a7db12d4e40131b7'
                     }
                     carrots_prod: {
                         table: 'x_1599224_online_d_product'
@@ -88,6 +96,10 @@ declare global {
                     lettuce_prod: {
                         table: 'x_1599224_online_d_product'
                         id: 'fc84b23bbcb2411fb88bed6e42e0dc33'
+                    }
+                    'main-delivery-app': {
+                        table: 'sys_ui_page'
+                        id: 'cc6ef41b51974985aefea7dd020fd8e3'
                     }
                     milk_prod: {
                         table: 'x_1599224_online_d_product'
@@ -149,6 +161,10 @@ declare global {
                         table: 'sys_module'
                         id: '6f5776a8476844a899a4423f7f5fe81b'
                     }
+                    'store-owner-dashboard': {
+                        table: 'sys_ui_page'
+                        id: 'cf6bc4b0ea154c108e76ef31c63db8e0'
+                    }
                     strawberry_prod: {
                         table: 'x_1599224_online_d_product'
                         id: 'b959a296a2fa43b092f4c273981f9177'
@@ -169,13 +185,53 @@ declare global {
                         table: 'x_1599224_online_d_product'
                         id: '77c73c84201f4cc88677d9627e427760'
                     }
+                    'x_1599224_online_d/app-CiziHiHv': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'e2a5ff042d6d479c8d0eff6ba79de02b'
+                    }
+                    'x_1599224_online_d/app-CiziHiHv.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: '0f598cb34cc8468a8205f2c049c71b0b'
+                    }
+                    'x_1599224_online_d/App-DRKUnBe1': {
+                        table: 'sys_ux_lib_asset'
+                        id: '2963858dc8be4b448462bd0945e9f47e'
+                    }
+                    'x_1599224_online_d/App-DRKUnBe1.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'c6c97893829a4ee587567cd3aa245c40'
+                    }
                     'x_1599224_online_d/main': {
                         table: 'sys_ux_lib_asset'
                         id: '683a11ec01a24a219e20c13fe0cafef1'
                     }
+                    'x_1599224_online_d/main-app': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'bf8a62aee57248d088711a4ff73e842b'
+                    }
+                    'x_1599224_online_d/main-app.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'e4d7cfab2f314cb2869645f6ea6260e1'
+                    }
                     'x_1599224_online_d/main.js.map': {
                         table: 'sys_ux_lib_asset'
                         id: '4c06e34621764f5795b630d256d6a707'
+                    }
+                    'x_1599224_online_d/ProductService-HOK46id-': {
+                        table: 'sys_ux_lib_asset'
+                        id: '95b3706337fd4862842503382ffea3f6'
+                    }
+                    'x_1599224_online_d/ProductService-HOK46id-.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: '81d66eac427c4eb68df38fc9a57fc478'
+                    }
+                    'x_1599224_online_d/store-owner/main': {
+                        table: 'sys_ux_lib_asset'
+                        id: '6f39542e40294ee6a559a10fca47b7da'
+                    }
+                    'x_1599224_online_d/store-owner/main.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: '900de911465a4a789cfb3724fdbb41e8'
                     }
                     yogurt_prod: {
                         table: 'x_1599224_online_d_product'
