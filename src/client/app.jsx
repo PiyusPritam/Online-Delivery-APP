@@ -68,7 +68,7 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-export default function App({ onBackToMain, integratedMode = false }) {
+export default function App({ onBackToMain, integratedMode = true }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentView, setCurrentView] = useState('products');
   const [cart, setCart] = useState([]);
@@ -86,8 +86,14 @@ export default function App({ onBackToMain, integratedMode = false }) {
 
   useEffect(() => {
     addDebugInfo('App component mounted');
-    initializeApp();
-  }, []);
+    
+    // In integrated mode, skip authentication as the parent already handles it
+    if (integratedMode) {
+      setLoading(false);
+    } else {
+      initializeApp();
+    }
+  }, [integratedMode]);
 
   useEffect(() => {
     document.body.className = darkMode ? 'dark-mode' : '';
@@ -347,8 +353,8 @@ export default function App({ onBackToMain, integratedMode = false }) {
     );
   }
 
-  // Show login if no current user
-  if (!currentUser) {
+  // Show login if no current user and not in integrated mode
+  if (!currentUser && !integratedMode) {
     return (
       <ErrorBoundary>
         <Login 
@@ -364,17 +370,53 @@ export default function App({ onBackToMain, integratedMode = false }) {
   return (
     <ErrorBoundary>
       <div className="delivery-app">
-        <Header
-          currentUser={currentUser}
-          currentView={currentView}
-          onViewChange={setCurrentView}
-          cartItemCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
-          darkMode={darkMode}
-          onToggleDarkMode={() => setDarkMode(!darkMode)}
-          integratedMode={integratedMode}
-          onBackToMain={onBackToMain}
-        />
-        <main className="main-content">
+        {/* Only show header if NOT in integrated mode */}
+        {!integratedMode && (
+          <Header
+            currentUser={currentUser}
+            currentView={currentView}
+            onViewChange={setCurrentView}
+            cartItemCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
+            darkMode={darkMode}
+            onToggleDarkMode={() => setDarkMode(!darkMode)}
+            integratedMode={integratedMode}
+            onBackToMain={onBackToMain}
+          />
+        )}
+
+        {/* Secondary Navigation for Integrated Mode */}
+        {integratedMode && (
+          <div className="customer-nav">
+            <div className="customer-nav-container">
+              <div className="nav-title">
+                <span className="nav-icon">🛒</span>
+                <span className="nav-text">Customer Shopping Portal</span>
+              </div>
+              
+              <div className="nav-tabs">
+                {[
+                  { id: 'products', label: 'Browse Products', icon: '🏪' },
+                  { id: 'cart', label: 'Shopping Cart', icon: '🛒', badge: cart.reduce((sum, item) => sum + item.quantity, 0) },
+                  { id: 'orders', label: 'Order History', icon: '📦' },
+                  { id: 'tracking', label: 'Track Orders', icon: '🚚' },
+                  { id: 'profile', label: 'My Profile', icon: '👤' }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    className={`nav-tab ${currentView === tab.id ? 'active' : ''}`}
+                    onClick={() => setCurrentView(tab.id)}
+                  >
+                    <span className="tab-icon">{tab.icon}</span>
+                    <span className="tab-label">{tab.label}</span>
+                    {tab.badge > 0 && <span className="tab-badge">{tab.badge}</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <main className={`main-content ${integratedMode ? 'integrated' : ''}`}>
           {renderCurrentView()}
         </main>
       </div>

@@ -1,7 +1,7 @@
 {
-    "name": "x-1599224-online-deliv",
+    "name": "x-1599224-freshcart",
     "version": "1.0.0",
-    "description": "[BUILD AGENT GENERATED]:  A comprehensive online delivery application where customers can order groceries, vegetables and other products with login authentication, address management, shopping cart, and order tracking capabilities",
+    "description": "FreshCart - Your premium grocery delivery service. Order fresh groceries, vegetables, and daily essentials with same-day delivery. Complete shopping solution with cart management, order tracking, and multi-address delivery.",
     "license": "UNLICENSED",
     "scripts": {
         "build": "now-sdk build",

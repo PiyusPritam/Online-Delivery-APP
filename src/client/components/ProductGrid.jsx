@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ProductService } from '../services/ProductService.js';
 
-export default function ProductGrid({ onAddToCart }) {
+export default function ProductGrid({ onAddToCart, darkMode }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -17,7 +17,7 @@ export default function ProductGrid({ onAddToCart }) {
   const productService = new ProductService();
 
   const addDebugInfo = (message) => {
-    console.log('PRODUCTS DEBUG:', message);
+    console.log('FRESHCART DEBUG:', message);
     setDebugInfo(prev => [...prev, `${new Date().toLocaleTimeString()}: ${message}`]);
   };
 
@@ -33,7 +33,7 @@ export default function ProductGrid({ onAddToCart }) {
   };
 
   useEffect(() => {
-    addDebugInfo('ProductGrid component mounted');
+    addDebugInfo('FreshCart ProductGrid component mounted');
     loadCategories();
   }, []);
 
@@ -134,7 +134,7 @@ export default function ProductGrid({ onAddToCart }) {
     const button = document.querySelector(`[data-product="${productId}"]`);
     if (button) {
       const originalText = button.innerHTML;
-      button.innerHTML = '✓ Added!';
+      button.innerHTML = '✓ Added to Cart!';
       button.style.backgroundColor = '#10b981';
       button.style.transform = 'scale(1.05)';
       setTimeout(() => {
@@ -149,64 +149,64 @@ export default function ProductGrid({ onAddToCart }) {
     const categoryMap = {
       groceries: { 
         emoji: '🛒', 
-        title: 'Groceries & Staples', 
+        title: 'Fresh Groceries & Staples', 
         description: 'Rice, dal, oil & daily essentials', 
-        color: '#ef4444',
-        gradient: 'from-red-500 to-pink-500'
+        color: '#10b981',
+        gradient: 'from-emerald-500 to-green-500'
       },
       vegetables: { 
         emoji: '🥬', 
-        title: 'Fresh Vegetables', 
-        description: 'Farm-fresh organic vegetables', 
-        color: '#10b981',
-        gradient: 'from-green-500 to-emerald-500'
+        title: 'Farm-Fresh Vegetables', 
+        description: 'Organic vegetables from local farms', 
+        color: '#059669',
+        gradient: 'from-green-600 to-emerald-600'
       },
       fruits: { 
         emoji: '🥭', 
-        title: 'Fresh Fruits', 
-        description: 'Seasonal & exotic fruits', 
+        title: 'Seasonal Fresh Fruits', 
+        description: 'Premium quality seasonal fruits', 
         color: '#f59e0b',
         gradient: 'from-yellow-500 to-orange-500'
       },
       dairy: { 
         emoji: '🥛', 
-        title: 'Dairy Products', 
-        description: 'Milk, paneer, curd & ghee', 
+        title: 'Pure Dairy Products', 
+        description: 'Fresh milk, paneer, curd & ghee', 
         color: '#3b82f6',
         gradient: 'from-blue-500 to-indigo-500'
       },
       meat: { 
         emoji: '🍖', 
-        title: 'Meat & Seafood', 
-        description: 'Fresh chicken, mutton & fish', 
+        title: 'Fresh Meat & Seafood', 
+        description: 'Premium chicken, mutton & fish', 
         color: '#8b5cf6',
         gradient: 'from-purple-500 to-violet-500'
       },
       beverages: { 
         emoji: '☕', 
-        title: 'Beverages', 
-        description: 'Tea, coffee, juices & drinks', 
+        title: 'Beverages & Drinks', 
+        description: 'Tea, coffee, juices & health drinks', 
         color: '#06b6d4',
         gradient: 'from-cyan-500 to-blue-500'
       },
       household: { 
         emoji: '🧽', 
-        title: 'Household Items', 
-        description: 'Cleaning & home essentials', 
+        title: 'Household Essentials', 
+        description: 'Cleaning & home care products', 
         color: '#84cc16',
         gradient: 'from-lime-500 to-green-500'
       },
       personal_care: { 
         emoji: '🧴', 
         title: 'Personal Care', 
-        description: 'Health & beauty products', 
+        description: 'Health & beauty essentials', 
         color: '#ec4899',
         gradient: 'from-pink-500 to-rose-500'
       },
       spices: { 
         emoji: '🌶️', 
-        title: 'Spices & Masalas', 
-        description: 'Authentic Indian spices', 
+        title: 'Authentic Spices & Masalas', 
+        description: 'Traditional Indian spices', 
         color: '#dc2626',
         gradient: 'from-red-600 to-orange-600'
       }
@@ -214,7 +214,7 @@ export default function ProductGrid({ onAddToCart }) {
     return categoryMap[categoryValue] || { 
       emoji: '📦', 
       title: categoryValue, 
-      description: 'Products', 
+      description: 'Quality products', 
       color: '#6b7280',
       gradient: 'from-gray-500 to-slate-500'
     };
@@ -307,36 +307,36 @@ export default function ProductGrid({ onAddToCart }) {
 
   const sortedProducts = sortProducts(products);
 
-  // Categories view with modern design
+  // Categories view with FreshCart branding
   if (currentView === 'categories') {
     return (
-      <div className="modern-categories-view">
+      <div className={`modern-categories-view ${darkMode ? 'dark-mode' : ''}`}>
         {/* Hero Section */}
         <div className="hero-section">
           <div className="hero-content">
             <div className="hero-badge">
-              <span className="badge-icon">🚚</span>
-              <span className="badge-text">Quick Delivery</span>
+              <span className="badge-icon">🛒</span>
+              <span className="badge-text">FreshCart</span>
             </div>
             <h1 className="hero-title">
-              Shop from India's Best
+              India's Premium
               <span className="gradient-text"> Grocery Store</span>
             </h1>
             <p className="hero-subtitle">
-              Fresh products delivered to your doorstep in 30 minutes or less
+              Fresh, organic products delivered to your doorstep in 30 minutes. Experience the future of grocery shopping.
             </p>
             <div className="hero-stats">
               <div className="stat-item">
-                <div className="stat-number">500+</div>
-                <div className="stat-label">Products</div>
+                <div className="stat-number">1000+</div>
+                <div className="stat-label">Fresh Products</div>
               </div>
               <div className="stat-item">
                 <div className="stat-number">30min</div>
-                <div className="stat-label">Delivery</div>
+                <div className="stat-label">Express Delivery</div>
               </div>
               <div className="stat-item">
                 <div className="stat-number">24/7</div>
-                <div className="stat-label">Available</div>
+                <div className="stat-label">Service</div>
               </div>
             </div>
           </div>
@@ -352,7 +352,7 @@ export default function ProductGrid({ onAddToCart }) {
         <div className="categories-section">
           <div className="section-header">
             <h2 className="section-title">Shop by Category</h2>
-            <p className="section-subtitle">Choose from our wide range of fresh and quality products</p>
+            <p className="section-subtitle">Choose from our wide range of premium, fresh products</p>
           </div>
           
           <div className="categories-grid">
@@ -391,23 +391,23 @@ export default function ProductGrid({ onAddToCart }) {
           <div className="features-grid">
             <div className="feature-card">
               <div className="feature-icon">⚡</div>
-              <h3 className="feature-title">Lightning Fast</h3>
-              <p className="feature-text">30-minute delivery guarantee</p>
+              <h3 className="feature-title">Lightning Fast Delivery</h3>
+              <p className="feature-text">30-minute express delivery guarantee</p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">🌱</div>
-              <h3 className="feature-title">Fresh & Organic</h3>
-              <p className="feature-text">Directly from farmers</p>
+              <h3 className="feature-title">Farm-Fresh & Organic</h3>
+              <p className="feature-text">Directly sourced from verified farmers</p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">💳</div>
-              <h3 className="feature-title">Best Prices</h3>
-              <p className="feature-text">Competitive INR pricing</p>
+              <h3 className="feature-title">Best Prices Guaranteed</h3>
+              <p className="feature-text">Competitive pricing with quality assurance</p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">🎯</div>
-              <h3 className="feature-title">Quality Assured</h3>
-              <p className="feature-text">100% satisfaction guarantee</p>
+              <h3 className="feature-title">100% Quality Promise</h3>
+              <p className="feature-text">Money-back guarantee on all products</p>
             </div>
           </div>
         </div>
@@ -415,14 +415,20 @@ export default function ProductGrid({ onAddToCart }) {
         <style jsx>{`
           .modern-categories-view {
             min-height: 100vh;
-            background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+            background: var(--bg-secondary);
+            transition: background 0.3s ease;
           }
 
           .hero-section {
             position: relative;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             padding: 80px 20px;
             overflow: hidden;
+            color: white;
+          }
+
+          .dark-mode .hero-section {
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
           }
 
           .hero-section::before {
@@ -476,13 +482,14 @@ export default function ProductGrid({ onAddToCart }) {
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
           }
 
           .hero-subtitle {
             font-size: 1.25rem;
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.95);
             margin-bottom: 40px;
-            max-width: 600px;
+            max-width: 700px;
             margin-left: auto;
             margin-right: auto;
             line-height: 1.6;
@@ -505,6 +512,11 @@ export default function ProductGrid({ onAddToCart }) {
             font-weight: 800;
             margin-bottom: 5px;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #ffffff, #f0fdf4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
           }
 
           .stat-label {
@@ -562,6 +574,7 @@ export default function ProductGrid({ onAddToCart }) {
             padding: 80px 20px;
             max-width: 1400px;
             margin: 0 auto;
+            background: var(--bg-primary);
           }
 
           .section-header {
@@ -572,13 +585,13 @@ export default function ProductGrid({ onAddToCart }) {
           .section-title {
             font-size: 2.5rem;
             font-weight: 800;
-            color: #1f2937;
+            color: var(--text-primary);
             margin-bottom: 16px;
           }
 
           .section-subtitle {
             font-size: 1.125rem;
-            color: #6b7280;
+            color: var(--text-secondary);
             max-width: 600px;
             margin: 0 auto;
           }
@@ -591,20 +604,20 @@ export default function ProductGrid({ onAddToCart }) {
 
           .category-card {
             position: relative;
-            background: white;
+            background: var(--bg-primary);
             border-radius: 24px;
             padding: 40px 32px;
             text-align: center;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid transparent;
+            border: 2px solid var(--border-light);
             overflow: hidden;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            box-shadow: var(--shadow-sm);
           }
 
           .category-card:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            box-shadow: var(--shadow-lg);
             border-color: var(--category-color);
           }
 
@@ -661,13 +674,13 @@ export default function ProductGrid({ onAddToCart }) {
           .category-title {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #1f2937;
+            color: var(--text-primary);
             margin-bottom: 12px;
           }
 
           .category-description {
             font-size: 1rem;
-            color: #6b7280;
+            color: var(--text-secondary);
             margin-bottom: 28px;
             line-height: 1.5;
           }
@@ -698,7 +711,7 @@ export default function ProductGrid({ onAddToCart }) {
 
           .features-section {
             padding: 60px 20px;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            background: var(--bg-secondary);
           }
 
           .features-grid {
@@ -710,16 +723,18 @@ export default function ProductGrid({ onAddToCart }) {
           }
 
           .feature-card {
-            background: white;
+            background: var(--bg-primary);
             padding: 32px 24px;
             border-radius: 20px;
             text-align: center;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-light);
           }
 
           .feature-card:hover {
             transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
           }
 
           .feature-icon {
@@ -731,12 +746,12 @@ export default function ProductGrid({ onAddToCart }) {
           .feature-title {
             font-size: 1.25rem;
             font-weight: 600;
-            color: #1f2937;
+            color: var(--text-primary);
             margin-bottom: 8px;
           }
 
           .feature-text {
-            color: #6b7280;
+            color: var(--text-secondary);
             font-size: 0.95rem;
           }
 
@@ -764,9 +779,9 @@ export default function ProductGrid({ onAddToCart }) {
     );
   }
 
-  // Products view with modern design and INR pricing
+  // Products view with FreshCart branding and dark mode support
   return (
-    <div className="modern-products-view">
+    <div className={`modern-products-view ${darkMode ? 'dark-mode' : ''}`}>
       {/* Header */}
       <div className="products-header">
         <div className="header-content">
@@ -802,7 +817,7 @@ export default function ProductGrid({ onAddToCart }) {
             </svg>
             <input
               type="text"
-              placeholder={`Search in ${selectedCategory?.label || 'products'}...`}
+              placeholder={`Search in ${selectedCategory?.label || 'FreshCart products'}...`}
               value={searchTerm}
               onChange={handleSearch}
               className="search-input"
@@ -837,7 +852,7 @@ export default function ProductGrid({ onAddToCart }) {
         <div className="status-message demo-mode">
           <div className="status-icon">🔧</div>
           <div className="status-content">
-            <strong>Demo Mode:</strong> Using sample data - ServiceNow API not available
+            <strong>Demo Mode:</strong> Using sample data - FreshCart API loading
           </div>
         </div>
       )}
@@ -855,14 +870,14 @@ export default function ProductGrid({ onAddToCart }) {
       {loading && (
         <div className="loading-state">
           <div className="loading-spinner"></div>
-          <p className="loading-text">Loading products...</p>
+          <p className="loading-text">Loading fresh products...</p>
         </div>
       )}
 
       {/* Products Grid */}
       {sortedProducts.length === 0 && !loading ? (
         <div className="empty-state">
-          <div className="empty-icon">📦</div>
+          <div className="empty-icon">🛒</div>
           <h3 className="empty-title">No products found</h3>
           <p className="empty-text">Try adjusting your search or browse other categories</p>
         </div>
@@ -931,12 +946,13 @@ export default function ProductGrid({ onAddToCart }) {
       <style jsx>{`
         .modern-products-view {
           min-height: 100vh;
-          background: #f8fafc;
+          background: var(--bg-secondary);
+          transition: background 0.3s ease;
         }
 
         .products-header {
-          background: white;
-          border-bottom: 1px solid #e5e7eb;
+          background: var(--bg-primary);
+          border-bottom: 1px solid var(--border-light);
           padding: 24px 20px;
           position: sticky;
           top: 0;
@@ -958,17 +974,18 @@ export default function ProductGrid({ onAddToCart }) {
           align-items: center;
           gap: 8px;
           padding: 12px 20px;
-          background: #f3f4f6;
-          border: 1px solid #d1d5db;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-medium);
           border-radius: 12px;
-          color: #374151;
+          color: var(--text-secondary);
           font-weight: 500;
           cursor: pointer;
           transition: all 0.2s ease;
         }
 
         .back-button:hover {
-          background: #e5e7eb;
+          background: var(--bg-tertiary);
+          color: var(--text-primary);
           transform: translateY(-1px);
         }
 
@@ -990,20 +1007,20 @@ export default function ProductGrid({ onAddToCart }) {
         .category-title-main {
           font-size: 1.875rem;
           font-weight: 800;
-          color: #1f2937;
+          color: var(--text-primary);
           margin: 0;
         }
 
         .category-subtitle {
-          color: #6b7280;
+          color: var(--text-secondary);
           margin: 4px 0 0 0;
           font-size: 1rem;
         }
 
         .search-section {
           padding: 24px 20px;
-          background: white;
-          border-bottom: 1px solid #e5e7eb;
+          background: var(--bg-primary);
+          border-bottom: 1px solid var(--border-light);
         }
 
         .search-container {
@@ -1028,24 +1045,25 @@ export default function ProductGrid({ onAddToCart }) {
           transform: translateY(-50%);
           width: 20px;
           height: 20px;
-          color: #9ca3af;
+          color: var(--text-tertiary);
         }
 
         .search-input {
           width: 100%;
           padding: 16px 16px 16px 48px;
-          border: 2px solid #e5e7eb;
+          border: 2px solid var(--border-light);
           border-radius: 16px;
           font-size: 16px;
-          background: #f9fafb;
+          background: var(--bg-secondary);
+          color: var(--text-primary);
           transition: all 0.2s ease;
         }
 
         .search-input:focus {
           outline: none;
-          border-color: #3b82f6;
-          background: white;
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          border-color: var(--primary);
+          background: var(--bg-primary);
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
 
         .filter-controls {
@@ -1059,10 +1077,10 @@ export default function ProductGrid({ onAddToCart }) {
           align-items: center;
           gap: 8px;
           padding: 12px 16px;
-          background: #f3f4f6;
-          border: 1px solid #d1d5db;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-medium);
           border-radius: 12px;
-          color: #374151;
+          color: var(--text-secondary);
           font-weight: 500;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -1070,9 +1088,9 @@ export default function ProductGrid({ onAddToCart }) {
 
         .filter-toggle:hover,
         .filter-toggle.active {
-          background: #3b82f6;
+          background: var(--primary);
           color: white;
-          border-color: #3b82f6;
+          border-color: var(--primary);
         }
 
         .filter-icon {
@@ -1082,10 +1100,10 @@ export default function ProductGrid({ onAddToCart }) {
 
         .sort-select {
           padding: 12px 16px;
-          border: 2px solid #e5e7eb;
+          border: 2px solid var(--border-light);
           border-radius: 12px;
-          background: white;
-          color: #374151;
+          background: var(--bg-primary);
+          color: var(--text-primary);
           font-weight: 500;
           cursor: pointer;
           transition: border-color 0.2s ease;
@@ -1093,7 +1111,7 @@ export default function ProductGrid({ onAddToCart }) {
 
         .sort-select:focus {
           outline: none;
-          border-color: #3b82f6;
+          border-color: var(--primary);
         }
 
         .status-message {
@@ -1108,15 +1126,15 @@ export default function ProductGrid({ onAddToCart }) {
         }
 
         .demo-mode {
-          background: #fef3c7;
-          color: #92400e;
-          border: 1px solid #fbbf24;
+          background: rgba(251, 191, 36, 0.1);
+          color: var(--warning);
+          border: 1px solid rgba(251, 191, 36, 0.2);
         }
 
         .error-mode {
-          background: #fee2e2;
-          color: #dc2626;
-          border: 1px solid #f87171;
+          background: rgba(220, 38, 38, 0.1);
+          color: var(--error);
+          border: 1px solid rgba(220, 38, 38, 0.2);
         }
 
         .status-icon {
@@ -1131,15 +1149,15 @@ export default function ProductGrid({ onAddToCart }) {
         .loading-spinner {
           width: 48px;
           height: 48px;
-          border: 4px solid #e5e7eb;
-          border-top: 4px solid #3b82f6;
+          border: 4px solid var(--border-light);
+          border-top: 4px solid var(--primary);
           border-radius: 50%;
           animation: spin 1s linear infinite;
           margin: 0 auto 20px;
         }
 
         .loading-text {
-          color: #6b7280;
+          color: var(--text-secondary);
           font-size: 1.125rem;
           font-weight: 500;
         }
@@ -1164,12 +1182,12 @@ export default function ProductGrid({ onAddToCart }) {
         .empty-title {
           font-size: 1.5rem;
           font-weight: 600;
-          color: #374151;
+          color: var(--text-primary);
           margin-bottom: 12px;
         }
 
         .empty-text {
-          color: #6b7280;
+          color: var(--text-secondary);
           font-size: 1.125rem;
         }
 
@@ -1183,10 +1201,10 @@ export default function ProductGrid({ onAddToCart }) {
         }
 
         .product-card {
-          background: white;
+          background: var(--bg-primary);
           border-radius: 20px;
           padding: 24px;
-          border: 1px solid #e5e7eb;
+          border: 1px solid var(--border-light);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
           overflow: hidden;
@@ -1194,13 +1212,13 @@ export default function ProductGrid({ onAddToCart }) {
 
         .product-card:hover {
           transform: translateY(-4px);
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-          border-color: #d1d5db;
+          box-shadow: var(--shadow-lg);
+          border-color: var(--border-medium);
         }
 
         .product-card.out-of-stock {
           opacity: 0.7;
-          background: #f9fafb;
+          background: var(--bg-secondary);
         }
 
         .stock-badge {
@@ -1215,13 +1233,13 @@ export default function ProductGrid({ onAddToCart }) {
         }
 
         .out-of-stock-badge {
-          background: #fee2e2;
-          color: #dc2626;
+          background: rgba(220, 38, 38, 0.1);
+          color: var(--error);
         }
 
         .low-stock-badge {
-          background: #fef3c7;
-          color: #d97706;
+          background: rgba(251, 191, 36, 0.1);
+          color: var(--warning);
         }
 
         .product-image {
@@ -1249,7 +1267,7 @@ export default function ProductGrid({ onAddToCart }) {
           transform: translate(-50%, -50%);
           width: 80px;
           height: 80px;
-          background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+          background: var(--bg-secondary);
           border-radius: 50%;
           opacity: 0;
           transition: opacity 0.3s ease;
@@ -1266,13 +1284,13 @@ export default function ProductGrid({ onAddToCart }) {
         .product-name {
           font-size: 1.25rem;
           font-weight: 700;
-          color: #1f2937;
+          color: var(--text-primary);
           margin: 0 0 8px 0;
           line-height: 1.4;
         }
 
         .product-description {
-          color: #6b7280;
+          color: var(--text-secondary);
           font-size: 0.9rem;
           line-height: 1.5;
           margin: 0 0 16px 0;
@@ -1283,8 +1301,8 @@ export default function ProductGrid({ onAddToCart }) {
         }
 
         .product-unit {
-          background: #f0f9ff;
-          color: #0369a1;
+          background: rgba(16, 185, 129, 0.1);
+          color: var(--primary);
           padding: 4px 10px;
           border-radius: 12px;
           font-size: 12px;
@@ -1305,7 +1323,7 @@ export default function ProductGrid({ onAddToCart }) {
         .current-price {
           font-size: 1.5rem;
           font-weight: 800;
-          color: #059669;
+          color: var(--success);
         }
 
         .add-to-cart-btn {
@@ -1313,23 +1331,23 @@ export default function ProductGrid({ onAddToCart }) {
           align-items: center;
           gap: 8px;
           padding: 12px 20px;
-          background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+          background: linear-gradient(135deg, var(--primary), var(--primary-dark));
           color: white;
           border: none;
           border-radius: 12px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s ease;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+          box-shadow: var(--shadow-sm);
         }
 
         .add-to-cart-btn:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5);
+          box-shadow: var(--shadow-md);
         }
 
         .add-to-cart-btn.disabled {
-          background: #9ca3af;
+          background: var(--text-tertiary);
           cursor: not-allowed;
           box-shadow: none;
           transform: none;

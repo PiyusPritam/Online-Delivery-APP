@@ -9,6 +9,11 @@ declare global {
                         table: 'sys_scope_privilege'
                         id: '18c48759c3593210a7db12d4e4013122'
                     }
+                    'app.css': {
+                        table: 'sys_ux_theme_asset'
+                        id: '91ddae49ef0941d598c45c854db66c17'
+                        deleted: true
+                    }
                     banana_prod: {
                         table: 'x_1599224_online_d_product'
                         id: '5ec01f8d48a94fb99ec50d4a75fab8da'
@@ -208,10 +213,68 @@ declare global {
                     'x_1599224_online_d/____insertStyle-B9cxCmGf': {
                         table: 'sys_ux_lib_asset'
                         id: '9ffadfb493274cfca47123a215a65b65'
+                        deleted: true
                     }
                     'x_1599224_online_d/____insertStyle-B9cxCmGf.js.map': {
                         table: 'sys_ux_lib_asset'
                         id: '34b309bbef524511914a62de6d691ea6'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/app-BeAyC00a': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'c43199dd5749408fac1ee726acbcca71'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/app-BeAyC00a.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: '1f3637a4fe96493d889bc5452b3b3787'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/app-BIW8GwFQ': {
+                        table: 'sys_ux_lib_asset'
+                        id: '88d1e53c1a2b42cab935befd7817cb3e'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/app-BIW8GwFQ.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: '26fb52ff2d50455987e4da55e3f664dd'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/app-BmWtG_F9': {
+                        table: 'sys_ux_lib_asset'
+                        id: '680ec997877840f0b3dc255a67295d7c'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/app-BmWtG_F9.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: '7ab3830062f443709e3defb0b8892bd4'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/app-BvpGJFJo': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'fe44f4cbca9342cebcde70cf78654223'
+                    }
+                    'x_1599224_online_d/app-BvpGJFJo.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: '8aa75e073322426c97122716e6b4e762'
+                    }
+                    'x_1599224_online_d/App-C7fCGJKD': {
+                        table: 'sys_ux_lib_asset'
+                        id: '336c8c5d138445889234416277989043'
+                    }
+                    'x_1599224_online_d/App-C7fCGJKD.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'a8742a73dd2542ad9427c72af33b951f'
+                    }
+                    'x_1599224_online_d/App-CeuQpDyl': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'c9d5aff360fe410d84c3c038d84c83a3'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/App-CeuQpDyl.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'bbd538a72ad849d6926464e6177d73f3'
+                        deleted: true
                     }
                     'x_1599224_online_d/app-CiziHiHv': {
                         table: 'sys_ux_lib_asset'
@@ -221,6 +284,16 @@ declare global {
                     'x_1599224_online_d/app-CiziHiHv.js.map': {
                         table: 'sys_ux_lib_asset'
                         id: '4ff25125f9d445dd9ccc4a58918fcfcd'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/App-CKY_VaN8': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'a549254e002143a898693963d5d6cfd1'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/App-CKY_VaN8.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: '5e32378ec3414385a38ee7f8611882c0'
                         deleted: true
                     }
                     'x_1599224_online_d/app-Co2MvFAq': {
@@ -233,13 +306,25 @@ declare global {
                         id: 'a35acf3df95c4ea7ac3d02bcf473685d'
                         deleted: true
                     }
+                    'x_1599224_online_d/app-D5VJuZGK': {
+                        table: 'sys_ux_lib_asset'
+                        id: '893963af8a414a73923635d391e166aa'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/app-D5VJuZGK.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'fc35960730a947a79a0693f38c807716'
+                        deleted: true
+                    }
                     'x_1599224_online_d/App-DE5DQlar': {
                         table: 'sys_ux_lib_asset'
                         id: '0b9823c78ac746f78a3f782ccd356955'
+                        deleted: true
                     }
                     'x_1599224_online_d/App-DE5DQlar.js.map': {
                         table: 'sys_ux_lib_asset'
                         id: '10b762b732214e3b8115cbff708722a2'
+                        deleted: true
                     }
                     'x_1599224_online_d/app-DK4Ma4xV': {
                         table: 'sys_ux_lib_asset'
@@ -284,10 +369,12 @@ declare global {
                     'x_1599224_online_d/app-ODoZbbtd': {
                         table: 'sys_ux_lib_asset'
                         id: '46a71a5fab9b471babd509472d3e3e56'
+                        deleted: true
                     }
                     'x_1599224_online_d/app-ODoZbbtd.js.map': {
                         table: 'sys_ux_lib_asset'
                         id: '7683106363f4489ebb5d450d49628d86'
+                        deleted: true
                     }
                     'x_1599224_online_d/App-tsDq0Osd': {
                         table: 'sys_ux_lib_asset'
@@ -318,12 +405,12 @@ declare global {
                     'x_1599224_online_d/ProductService-HOK46id-': {
                         table: 'sys_ux_lib_asset'
                         id: '62e0a946bbca483caa7727565f898b0e'
-                        deleted: true
+                        deleted: false
                     }
                     'x_1599224_online_d/ProductService-HOK46id-.js.map': {
                         table: 'sys_ux_lib_asset'
                         id: 'cfc95238aeb34fd3899a99a9cb8fb54f'
-                        deleted: true
+                        deleted: false
                     }
                     'x_1599224_online_d/store-owner/main': {
                         table: 'sys_ux_lib_asset'
