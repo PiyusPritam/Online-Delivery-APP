@@ -1,14 +1,14 @@
 import '@servicenow/sdk/global'
 import { BusinessRule } from '@servicenow/sdk/core'
-import { createSampleProducts } from '../../server/utilities/create-sample-products.js'
 
-BusinessRule({
-    $id: Now.ID['init_sample_data_br'],
-    name: 'Initialize Sample Products',
-    table: 'x_1599224_online_d_product',
+export const InitSampleData = BusinessRule({
+    $id: Now.ID['init_sample_data'],
+    name: 'Initialize Sample Data',
+    table: 'sys_user',
     when: 'after',
-    action: ['query'],
-    script: createSampleProducts,
+    action: ['insert'],
+    script: Now.include('../../server/utilities/create-sample-products.js'),
     order: 1000,
-    active: true
+    active: true,
+    condition: "current.user_name == 'admin'"
 })

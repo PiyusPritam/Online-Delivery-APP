@@ -34,6 +34,14 @@ declare global {
                         table: 'sys_scope_privilege'
                         id: 'c8c4c359c3593210a7db12d4e40131b7'
                     }
+                    cart_cleanup_on_order: {
+                        table: 'sys_script'
+                        id: '4d6aa4a8d2b84803bba2c128c6e0f8f3'
+                    }
+                    CartManagerAPI: {
+                        table: 'sys_script_include'
+                        id: '6381e3da74ba42819bd15f6bbd401d92'
+                    }
                     chicken_prod: {
                         table: 'x_1599224_online_d_product'
                         id: '5acc2d6e40974716800e9e78ffff4fae'
@@ -41,6 +49,10 @@ declare global {
                     coconut_water_prod: {
                         table: 'x_1599224_online_d_product'
                         id: '9f3171ada2fb47e4a26fd57e383915e3'
+                    }
+                    'components/Header.css': {
+                        table: 'sys_ux_theme_asset'
+                        id: '6bc90d1236024d46841ea0d242021214'
                     }
                     cooking_oil_prod: {
                         table: 'x_1599224_online_d_product'
@@ -82,9 +94,14 @@ declare global {
                         table: 'x_1599224_online_d_product'
                         id: 'e06484c953354297b1198a609a390fcb'
                     }
+                    init_sample_data: {
+                        table: 'sys_script'
+                        id: '5a2d92ae2c5c453ba2b1121c48302e1a'
+                    }
                     init_sample_data_br: {
                         table: 'sys_script'
                         id: 'c3e4e541b0444cac9077997954002e75'
+                        deleted: true
                     }
                     lassi_prod: {
                         table: 'x_1599224_online_d_product'
@@ -134,6 +151,10 @@ declare global {
                         table: 'sys_script'
                         id: '49b80ed474434309ac98fd479364f37a'
                     }
+                    order_status_notification: {
+                        table: 'sys_script'
+                        id: '8aafa5c617364fab857744b4f2385ed0'
+                    }
                     order_total_br: {
                         table: 'sys_script'
                         id: 'fb2850918257405fbc37c729ac52d041'
@@ -170,9 +191,25 @@ declare global {
                         table: 'x_1599224_online_d_product'
                         id: '65ace751c7954f4496228c90dce1b3b3'
                     }
+                    'src_server_cart_cart-cleanup_js': {
+                        table: 'sys_module'
+                        id: '77d6b1c3623748228c4cd6a9ea4459ac'
+                    }
+                    'src_server_cart_cart-manager_js': {
+                        table: 'sys_module'
+                        id: 'b7353aeef18e41e086d3fc265c75d94f'
+                    }
                     'src_server_order-calculations_js': {
                         table: 'sys_module'
                         id: 'f156a6101224416790bffff869884832'
+                    }
+                    'src_server_order-notifications_js': {
+                        table: 'sys_module'
+                        id: '407aa9b40ddb4590bc610da92c96b298'
+                    }
+                    'src_server_script-includes_cart-manager-api_js': {
+                        table: 'sys_module'
+                        id: '46ec704fa8d240a6abac2815cf466611'
                     }
                     'src_server_utilities_create-sample-products_js': {
                         table: 'sys_module'
@@ -220,6 +257,14 @@ declare global {
                         id: '34b309bbef524511914a62de6d691ea6'
                         deleted: true
                     }
+                    'x_1599224_online_d/app-B-JQAPV1': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'd5bdbeb70b254aa3844ce0a7ec736c44'
+                    }
+                    'x_1599224_online_d/app-B-JQAPV1.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'd5bd5ff7dbea4d5894ae8ded5f1f0a51'
+                    }
                     'x_1599224_online_d/app-BeAyC00a': {
                         table: 'sys_ux_lib_asset'
                         id: 'c43199dd5749408fac1ee726acbcca71'
@@ -228,6 +273,16 @@ declare global {
                     'x_1599224_online_d/app-BeAyC00a.js.map': {
                         table: 'sys_ux_lib_asset'
                         id: '1f3637a4fe96493d889bc5452b3b3787'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/app-BeXpUo6R': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'e6eb1f31cd3941df919ea890058ed852'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/app-BeXpUo6R.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: '01e6a998b3264ca4b51e0aa222678ebf'
                         deleted: true
                     }
                     'x_1599224_online_d/app-BIW8GwFQ': {
@@ -250,21 +305,35 @@ declare global {
                         id: '7ab3830062f443709e3defb0b8892bd4'
                         deleted: true
                     }
+                    'x_1599224_online_d/app-BSV9FEL7': {
+                        table: 'sys_ux_lib_asset'
+                        id: '454286c77bb64708b2aebea8e2779212'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/app-BSV9FEL7.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: '9cd7665ccfd4454c9fb4559cbdb0231d'
+                        deleted: true
+                    }
                     'x_1599224_online_d/app-BvpGJFJo': {
                         table: 'sys_ux_lib_asset'
                         id: 'fe44f4cbca9342cebcde70cf78654223'
+                        deleted: true
                     }
                     'x_1599224_online_d/app-BvpGJFJo.js.map': {
                         table: 'sys_ux_lib_asset'
                         id: '8aa75e073322426c97122716e6b4e762'
+                        deleted: true
                     }
                     'x_1599224_online_d/App-C7fCGJKD': {
                         table: 'sys_ux_lib_asset'
                         id: '336c8c5d138445889234416277989043'
+                        deleted: true
                     }
                     'x_1599224_online_d/App-C7fCGJKD.js.map': {
                         table: 'sys_ux_lib_asset'
                         id: 'a8742a73dd2542ad9427c72af33b951f'
+                        deleted: true
                     }
                     'x_1599224_online_d/App-CeuQpDyl': {
                         table: 'sys_ux_lib_asset'
@@ -284,6 +353,16 @@ declare global {
                     'x_1599224_online_d/app-CiziHiHv.js.map': {
                         table: 'sys_ux_lib_asset'
                         id: '4ff25125f9d445dd9ccc4a58918fcfcd'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/app-CJovzXzL': {
+                        table: 'sys_ux_lib_asset'
+                        id: '0629a58e2a0442e8a9895c220ea5fccd'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/app-CJovzXzL.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: '48ec78630ed843b6a25f07ea992a7c3f'
                         deleted: true
                     }
                     'x_1599224_online_d/App-CKY_VaN8': {
@@ -306,6 +385,14 @@ declare global {
                         id: 'a35acf3df95c4ea7ac3d02bcf473685d'
                         deleted: true
                     }
+                    'x_1599224_online_d/App-cXsRtxke': {
+                        table: 'sys_ux_lib_asset'
+                        id: '7a369546f6064ade81e085d61f28f361'
+                    }
+                    'x_1599224_online_d/App-cXsRtxke.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'f6e6affbe50043499a3af4869e6664e5'
+                    }
                     'x_1599224_online_d/app-D5VJuZGK': {
                         table: 'sys_ux_lib_asset'
                         id: '893963af8a414a73923635d391e166aa'
@@ -314,6 +401,16 @@ declare global {
                     'x_1599224_online_d/app-D5VJuZGK.js.map': {
                         table: 'sys_ux_lib_asset'
                         id: 'fc35960730a947a79a0693f38c807716'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/app-D8ek3Ipy': {
+                        table: 'sys_ux_lib_asset'
+                        id: '5112a08a5b644d7b9dd43f79608db1bb'
+                        deleted: true
+                    }
+                    'x_1599224_online_d/app-D8ek3Ipy.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: '077055abdf084466b6fb82a223fcfe93'
                         deleted: true
                     }
                     'x_1599224_online_d/App-DE5DQlar': {

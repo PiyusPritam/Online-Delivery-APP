@@ -1,198 +1,130 @@
-import { gs, GlideRecord } from '@servicenow/glide';
+import { gs } from '@servicenow/glide';
+import { GlideRecord } from '@servicenow/glide';
+import { GlideDateTime } from '@servicenow/glide';
 
-export function createSampleProducts() {
-    gs.info('Starting sample product creation...');
-    
-    const sampleProducts = [
-        {
-            name: 'Alphonso Mangoes',
-            description: 'Premium Alphonso mangoes from Ratnagiri, sweet and juicy',
-            category: 'fruits',
-            price: 120,
-            unit: 'kg',
-            stock_quantity: 50,
-            active: true,
-            delivery_time_hours: 2
-        },
-        {
-            name: 'Robusta Bananas',
-            description: 'Fresh robusta bananas from Kerala, rich in potassium',
-            category: 'fruits',
-            price: 40,
-            unit: 'dozen',
-            stock_quantity: 75,
-            active: true,
-            delivery_time_hours: 2
-        },
-        {
-            name: 'Maharashtra Pomegranates',
-            description: 'Fresh pomegranates packed with antioxidants, ruby red arils',
-            category: 'fruits',
-            price: 180,
-            unit: 'kg',
-            stock_quantity: 35,
-            active: true,
-            delivery_time_hours: 2
-        },
-        {
-            name: 'Fresh Tomatoes',
-            description: 'Fresh red tomatoes, perfect for curries and salads',
-            category: 'vegetables',
-            price: 25,
-            unit: 'kg',
-            stock_quantity: 40,
-            active: true,
-            delivery_time_hours: 2
-        },
-        {
-            name: 'Red Onions',
-            description: 'Fresh red onions from Maharashtra, essential for Indian cooking',
-            category: 'vegetables',
-            price: 35,
-            unit: 'kg',
-            stock_quantity: 60,
-            active: true,
-            delivery_time_hours: 2
-        },
-        {
-            name: 'Fresh Potatoes',
-            description: 'Quality potatoes from Punjab, perfect for aloo dishes',
-            category: 'vegetables',
-            price: 20,
-            unit: 'kg',
-            stock_quantity: 80,
-            active: true,
-            delivery_time_hours: 2
-        },
-        {
-            name: 'Amul Full Cream Milk',
-            description: 'Fresh full cream milk from Amul, rich and creamy',
-            category: 'dairy',
-            price: 30,
-            unit: 'litre',
-            stock_quantity: 50,
-            active: true,
-            delivery_time_hours: 1
-        },
-        {
-            name: 'Fresh Paneer',
-            description: 'Homemade style fresh paneer, perfect for curries',
-            category: 'dairy',
-            price: 320,
-            unit: 'kg',
-            stock_quantity: 15,
-            active: true,
-            delivery_time_hours: 1
-        },
-        {
-            name: 'Fresh Chicken (Murgi)',
-            description: 'Fresh chicken pieces, cleaned and cut, perfect for curry',
-            category: 'meat',
-            price: 180,
-            unit: 'kg',
-            stock_quantity: 25,
-            active: true,
-            delivery_time_hours: 1
-        },
-        {
-            name: 'Basmati Rice',
-            description: 'Premium aged basmati rice, long grain, perfect for biryani',
-            category: 'groceries',
-            price: 150,
-            unit: 'kg',
-            stock_quantity: 100,
-            active: true,
-            delivery_time_hours: 3
-        },
-        {
-            name: 'Aashirvaad Atta (Wheat Flour)',
-            description: 'Premium whole wheat flour for making rotis and parathas',
-            category: 'groceries',
-            price: 45,
-            unit: 'kg',
-            stock_quantity: 80,
-            active: true,
-            delivery_time_hours: 3
-        },
-        {
-            name: 'Toor Dal (Arhar Dal)',
-            description: 'High-quality toor dal, protein-rich pigeon pea lentils',
-            category: 'groceries',
-            price: 120,
-            unit: 'kg',
-            stock_quantity: 60,
-            active: true,
-            delivery_time_hours: 3
-        },
-        {
-            name: 'Haldi (Turmeric Powder)',
-            description: 'Pure turmeric powder, essential for Indian cooking',
-            category: 'spices',
-            price: 80,
-            unit: 'piece',
-            stock_quantity: 50,
-            active: true,
-            delivery_time_hours: 2
-        },
-        {
-            name: 'MDH Garam Masala',
-            description: 'Aromatic garam masala blend, perfect for curries',
-            category: 'spices',
-            price: 45,
-            unit: 'piece',
-            stock_quantity: 35,
-            active: true,
-            delivery_time_hours: 2
-        },
-        {
-            name: 'Tata Tea Gold',
-            description: 'Premium black tea blend, perfect for Indian chai',
-            category: 'beverages',
-            price: 450,
-            unit: 'kg',
-            stock_quantity: 25,
-            active: true,
-            delivery_time_hours: 2
-        }
-    ];
-
-    let created = 0;
-    let skipped = 0;
-
-    for (const product of sampleProducts) {
-        // Check if product already exists
-        const existingProduct = new GlideRecord('x_1599224_online_d_product');
-        existingProduct.addQuery('name', product.name);
-        existingProduct.query();
-        
-        if (existingProduct.hasNext()) {
-            gs.info(`Product already exists: ${product.name}`);
-            skipped++;
-            continue;
+export function createSampleData(current, previous) {
+    try {
+        // Check if sample data already exists
+        var productGr = new GlideRecord('x_1599224_online_d_product');
+        productGr.query();
+        if (productGr.getRowCount() > 0) {
+            gs.log('Sample data already exists, skipping initialization', 'SampleDataInit');
+            return;
         }
 
-        // Create new product
-        const newProduct = new GlideRecord('x_1599224_online_d_product');
-        newProduct.initialize();
-        
-        newProduct.setValue('name', product.name);
-        newProduct.setValue('description', product.description);
-        newProduct.setValue('category', product.category);
-        newProduct.setValue('price', product.price);
-        newProduct.setValue('unit', product.unit);
-        newProduct.setValue('stock_quantity', product.stock_quantity);
-        newProduct.setValue('active', product.active);
-        newProduct.setValue('delivery_time_hours', product.delivery_time_hours);
-        
-        const sysId = newProduct.insert();
-        if (sysId) {
-            gs.info(`Created product: ${product.name} (${sysId})`);
-            created++;
-        } else {
-            gs.error(`Failed to create product: ${product.name}`);
+        gs.log('Creating sample data for delivery app', 'SampleDataInit');
+
+        // Create sample customer
+        var customerGr = new GlideRecord('x_1599224_online_d_customer');
+        customerGr.initialize();
+        customerGr.setValue('email', 'demo@customer.com');
+        customerGr.setValue('first_name', 'Demo');
+        customerGr.setValue('last_name', 'Customer');
+        customerGr.setValue('phone', '+1-555-0123');
+        customerGr.setValue('active', true);
+        var customerId = customerGr.insert();
+
+        // Create sample address
+        var addressGr = new GlideRecord('x_1599224_online_d_address');
+        addressGr.initialize();
+        addressGr.setValue('customer', customerId);
+        addressGr.setValue('address_line_1', '123 Demo Street');
+        addressGr.setValue('address_line_2', 'Apt 4B');
+        addressGr.setValue('city', 'Demo City');
+        addressGr.setValue('state', 'CA');
+        addressGr.setValue('zip_code', '90210');
+        addressGr.setValue('is_default', true);
+        var addressId = addressGr.insert();
+
+        // Create sample products
+        var products = [
+            { name: 'Fresh Mango', category: 'fruits', price: 4.99, unit: 'piece', description: 'Sweet and juicy mangoes', stock: 50 },
+            { name: 'Organic Banana', category: 'fruits', price: 2.99, unit: 'dozen', description: 'Fresh organic bananas', stock: 100 },
+            { name: 'Red Tomatoes', category: 'vegetables', price: 3.49, unit: 'lb', description: 'Fresh red tomatoes', stock: 75 },
+            { name: 'Fresh Milk', category: 'dairy', price: 5.99, unit: 'gallon', description: 'Fresh whole milk', stock: 30 },
+            { name: 'Basmati Rice', category: 'grains', price: 8.99, unit: 'bag', description: 'Premium basmati rice 5lb', stock: 25 }
+        ];
+
+        var productIds = [];
+        for (var i = 0; i < products.length; i++) {
+            var product = products[i];
+            var prodGr = new GlideRecord('x_1599224_online_d_product');
+            prodGr.initialize();
+            prodGr.setValue('name', product.name);
+            prodGr.setValue('category', product.category);
+            prodGr.setValue('price', product.price);
+            prodGr.setValue('unit', product.unit);
+            prodGr.setValue('description', product.description);
+            prodGr.setValue('available_stock', product.stock);
+            prodGr.setValue('active', true);
+            var prodId = prodGr.insert();
+            productIds.push(prodId);
         }
+
+        // Create sample orders with different statuses
+        var orderStatuses = ['delivered', 'out_for_delivery', 'preparing', 'confirmed'];
+        var orderDates = [-7, -3, -1, 0]; // Days ago
+
+        for (var j = 0; j < orderStatuses.length; j++) {
+            var status = orderStatuses[j];
+            var daysAgo = orderDates[j];
+            
+            var orderGr = new GlideRecord('x_1599224_online_d_order');
+            orderGr.initialize();
+            orderGr.setValue('customer', customerId);
+            orderGr.setValue('delivery_address', addressId);
+            orderGr.setValue('status', status);
+            orderGr.setValue('payment_method', 'credit_card');
+            orderGr.setValue('delivery_fee', 5.99);
+            
+            // Set order date
+            var orderDate = new GlideDateTime();
+            orderDate.addDays(daysAgo);
+            orderGr.setValue('order_date', orderDate);
+            
+            // Set estimated delivery
+            var estDelivery = new GlideDateTime(orderDate);
+            estDelivery.addMinutes(30);
+            orderGr.setValue('estimated_delivery', estDelivery);
+            
+            // Set actual delivery for delivered orders
+            if (status === 'delivered') {
+                var actualDelivery = new GlideDateTime(orderDate);
+                actualDelivery.addMinutes(25);
+                orderGr.setValue('actual_delivery', actualDelivery);
+            }
+            
+            var orderId = orderGr.insert();
+            
+            // Create order items
+            var totalAmount = 0;
+            var numItems = Math.floor(Math.random() * 3) + 2; // 2-4 items per order
+            
+            for (var k = 0; k < numItems && k < productIds.length; k++) {
+                var itemGr = new GlideRecord('x_1599224_online_d_order_item');
+                itemGr.initialize();
+                itemGr.setValue('order', orderId);
+                itemGr.setValue('product', productIds[k]);
+                itemGr.setValue('quantity', Math.floor(Math.random() * 3) + 1);
+                itemGr.setValue('unit_price', products[k].price);
+                
+                var itemTotal = itemGr.getValue('quantity') * products[k].price;
+                itemGr.setValue('total_price', itemTotal);
+                totalAmount += itemTotal;
+                
+                itemGr.insert();
+            }
+            
+            // Update order total
+            orderGr.get(orderId);
+            orderGr.setValue('total_amount', totalAmount + 5.99);
+            orderGr.update();
+        }
+
+        gs.log('Sample data created successfully', 'SampleDataInit');
+        gs.addInfoMessage('Sample data has been created for the delivery app');
+
+    } catch (error) {
+        gs.logError('Error creating sample data: ' + error.getMessage(), 'SampleDataInit');
     }
-
-    gs.info(`Sample product creation completed. Created: ${created}, Skipped: ${skipped}`);
-    return { created, skipped };
 }

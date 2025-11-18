@@ -7,7 +7,9 @@ import UserProfile from './components/UserProfile.jsx';
 import OrderTracking from './components/OrderTracking.jsx';
 import Login from './components/Login.jsx';
 import { UserService } from './services/UserService.js';
+import { CartService } from './services/CartService.js';
 import './app.css';
+import './customer-nav.css';
 
 // Error Boundary Component with enhanced error display
 class ErrorBoundary extends React.Component {
@@ -77,6 +79,7 @@ export default function App({ onBackToMain, integratedMode = true }) {
   const [error, setError] = useState('');
   const [authError, setAuthError] = useState(null);
   const [debugInfo, setDebugInfo] = useState([]);
+  const [cartService] = useState(new CartService());
 
   const addDebugInfo = (message) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -87,9 +90,9 @@ export default function App({ onBackToMain, integratedMode = true }) {
   useEffect(() => {
     addDebugInfo('App component mounted');
     
-    // In integrated mode, skip authentication as the parent already handles it
+    // In integrated mode, try to get user but don't fail if not available
     if (integratedMode) {
-      setLoading(false);
+      initializeUserQuietly();
     } else {
       initializeApp();
     }
@@ -98,6 +101,62 @@ export default function App({ onBackToMain, integratedMode = true }) {
   useEffect(() => {
     document.body.className = darkMode ? 'dark-mode' : '';
   }, [darkMode]);
+
+  // Load cart when user changes
+  useEffect(() => {
+    loadCart();
+  }, [currentUser]);
+
+  // Auto-save cart whenever it changes
+  useEffect(() => {
+    if (cart.length >= 0) {
+      saveCart();
+    }
+  }, [cart]);
+
+  const initializeUserQuietly = async () => {
+    try {
+      setLoading(true);
+      addDebugInfo('Quietly initializing user in integrated mode');
+      
+      const userService = new UserService();
+      
+      try {
+        const user = await userService.getCurrentUser();
+        if (user) {
+          addDebugInfo('User found in integrated mode');
+          setCurrentUser(user);
+        } else {
+          addDebugInfo('No user found, continuing in demo mode');
+          // Create a demo user for integrated mode
+          setCurrentUser(createDemoUser());
+        }
+      } catch (error) {
+        addDebugInfo('User service failed, creating demo user');
+        setCurrentUser(createDemoUser());
+      }
+    } catch (err) {
+      addDebugInfo('Failed to initialize user, using demo mode');
+      setCurrentUser(createDemoUser());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createDemoUser = () => {
+    return {
+      name: { display_value: 'Demo Customer' },
+      user_name: { display_value: 'demo.customer' },
+      sys_id: { value: 'demo_user_123' },
+      customerProfile: {
+        sys_id: { value: 'demo_customer_123' },
+        email: { display_value: 'demo@customer.com' },
+        first_name: { display_value: 'Demo' },
+        last_name: { display_value: 'Customer' },
+        phone: { display_value: '+1-555-0123' }
+      }
+    };
+  };
 
   const initializeApp = async () => {
     try {
@@ -166,28 +225,32 @@ export default function App({ onBackToMain, integratedMode = true }) {
     }
   };
 
+  const loadCart = async () => {
+    try {
+      const { cart: localCart } = await cartService.loadCart();
+      setCart(localCart);
+      addDebugInfo(`Cart loaded with ${localCart.length} items`);
+    } catch (error) {
+      console.error('Error loading cart:', error);
+      addDebugInfo(`Error loading cart: ${error.message}`);
+    }
+  };
+
+  const saveCart = async () => {
+    try {
+      await cartService.saveCart(cart);
+    } catch (error) {
+      console.error('Error saving cart:', error);
+      // Don't show error to user as this is automatic
+    }
+  };
+
   const addToCart = (product, quantity) => {
     try {
       const productName = typeof product.name === 'object' ? product.name.display_value : product.name;
       addDebugInfo(`Adding to cart: ${productName || 'Unknown product'} (${quantity})`);
       
-      setCart(prev => {
-        const productId = typeof product.sys_id === 'object' ? product.sys_id.value : product.sys_id;
-        const existing = prev.find(item => {
-          const itemId = typeof item.product.sys_id === 'object' ? item.product.sys_id.value : item.product.sys_id;
-          return itemId === productId;
-        });
-        
-        if (existing) {
-          return prev.map(item => {
-            const itemId = typeof item.product.sys_id === 'object' ? item.product.sys_id.value : item.product.sys_id;
-            return itemId === productId
-              ? { ...item, quantity: item.quantity + quantity }
-              : item;
-          });
-        }
-        return [...prev, { product, quantity }];
-      });
+      setCart(prev => cartService.addItemToCart(prev, product, quantity));
     } catch (err) {
       console.error('Error adding to cart:', err);
       addDebugInfo(`Error adding to cart: ${err.message}`);
@@ -196,30 +259,55 @@ export default function App({ onBackToMain, integratedMode = true }) {
 
   const updateCartQuantity = (productId, newQuantity) => {
     try {
-      if (newQuantity <= 0) {
-        setCart(prev => prev.filter(item => {
-          const itemId = typeof item.product.sys_id === 'object' ? item.product.sys_id.value : item.product.sys_id;
-          return itemId !== productId;
-        }));
-      } else {
-        setCart(prev =>
-          prev.map(item => {
-            const itemId = typeof item.product.sys_id === 'object' ? item.product.sys_id.value : item.product.sys_id;
-            return itemId === productId
-              ? { ...item, quantity: newQuantity }
-              : item;
-          })
-        );
-      }
+      setCart(prev => cartService.updateCartItemQuantity(prev, productId, newQuantity));
     } catch (err) {
       console.error('Error updating cart:', err);
       addDebugInfo(`Error updating cart: ${err.message}`);
     }
   };
 
-  const clearCart = () => {
-    addDebugInfo('Cart cleared');
-    setCart([]);
+  const clearCart = async () => {
+    try {
+      addDebugInfo('Cart cleared');
+      setCart([]);
+      await cartService.clearCart();
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+    }
+  };
+
+  const reorderItems = async (orderId) => {
+    try {
+      addDebugInfo(`Reordering items from order: ${orderId}`);
+      
+      const items = await cartService.getOrderItemsForReorder(orderId);
+      
+      if (items.length === 0) {
+        throw new Error('No items found for reorder');
+      }
+
+      // Add reorder items to current cart
+      setCart(prev => {
+        let newCart = [...prev];
+        
+        items.forEach(item => {
+          newCart = cartService.addItemToCart(newCart, item.product, item.quantity);
+        });
+        
+        return newCart;
+      });
+
+      // Switch to cart view
+      setCurrentView('cart');
+      
+      addDebugInfo(`Successfully added ${items.length} items from previous order to cart`);
+      
+      return { success: true, itemCount: items.length };
+    } catch (error) {
+      console.error('Error reordering items:', error);
+      addDebugInfo(`Error reordering: ${error.message}`);
+      throw error;
+    }
   };
 
   const renderCurrentView = () => {
@@ -237,7 +325,7 @@ export default function App({ onBackToMain, integratedMode = true }) {
             />
           );
         case 'orders':
-          return <OrderHistory currentUser={currentUser} />;
+          return <OrderHistory currentUser={currentUser} onReorder={reorderItems} />;
         case 'profile':
           return <UserProfile currentUser={currentUser} onUpdateUser={setCurrentUser} />;
         case 'tracking':
@@ -251,7 +339,7 @@ export default function App({ onBackToMain, integratedMode = true }) {
         <div style={{ 
           padding: '20px', 
           background: '#ffebee', 
-          color: '#c62828', 
+          color: '#c62626', 
           borderRadius: '4px',
           margin: '20px'
         }}>
@@ -281,7 +369,7 @@ export default function App({ onBackToMain, integratedMode = true }) {
       <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <h1>🚚 Quick Delivery</h1>
+            <h1>🚚 FreshCart Delivery</h1>
             <p>Loading application...</p>
             <div className="spinner" style={{ 
               border: '4px solid #f3f3f3',
@@ -376,7 +464,7 @@ export default function App({ onBackToMain, integratedMode = true }) {
             currentUser={currentUser}
             currentView={currentView}
             onViewChange={setCurrentView}
-            cartItemCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
+            cartItemCount={cartService.getCartItemCount(cart)}
             darkMode={darkMode}
             onToggleDarkMode={() => setDarkMode(!darkMode)}
             integratedMode={integratedMode}
@@ -396,7 +484,7 @@ export default function App({ onBackToMain, integratedMode = true }) {
               <div className="nav-tabs">
                 {[
                   { id: 'products', label: 'Browse Products', icon: '🏪' },
-                  { id: 'cart', label: 'Shopping Cart', icon: '🛒', badge: cart.reduce((sum, item) => sum + item.quantity, 0) },
+                  { id: 'cart', label: 'Shopping Cart', icon: '🛒', badge: cartService.getCartItemCount(cart) },
                   { id: 'orders', label: 'Order History', icon: '📦' },
                   { id: 'tracking', label: 'Track Orders', icon: '🚚' },
                   { id: 'profile', label: 'My Profile', icon: '👤' }
