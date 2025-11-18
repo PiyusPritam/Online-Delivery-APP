@@ -1,0 +1,22 @@
+{
+    "name": "x-1599224-online-deliv",
+    "version": "1.0.0",
+    "description": "[BUILD AGENT GENERATED]:  A comprehensive online delivery application where customers can order groceries, vegetables and other products with login authentication, address management, shopping cart, and order tracking capabilities",
+    "license": "UNLICENSED",
+    "scripts": {
+        "build": "now-sdk build",
+        "deploy": "now-sdk install",
+        "transform": "now-sdk transform",
+        "types": "now-sdk dependencies"
+    },
+    "devDependencies": {
+        "@servicenow/sdk": "4.0.2",
+        "@servicenow/glide": "26.0.1",
+        "eslint": "8.50.0",
+        "@servicenow/eslint-plugin-sdk-app-plugin": "4.0.2"
+    },
+    "dependencies": {
+        "react": "18.2.0",
+        "react-dom": "18.2.0"
+    }
+}

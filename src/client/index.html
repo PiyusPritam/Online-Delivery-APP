@@ -1,0 +1,66 @@
+<html>
+<head>
+  <title>Online Delivery App</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <!-- ServiceNow Context Script -->
+  <script>
+    // Initialize ServiceNow context manually
+    window.NOW = window.NOW || {};
+    
+    // Get ServiceNow session info from server
+    fetch('/api/now/ui/user', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('ServiceNow user context:', data);
+      // Set up global user context
+      window.g_user = {
+        userName: data.result.user_name || data.result.name,
+        userID: data.result.sys_id,
+        firstName: data.result.first_name,
+        lastName: data.result.last_name,
+        email: data.result.email
+      };
+      // Generate a session token (simplified)
+      window.g_ck = 'session_token_' + Date.now();
+      console.log('ServiceNow globals initialized:', { g_user: window.g_user, g_ck: window.g_ck });
+    })
+    .catch(error => {
+      console.error('Failed to get ServiceNow user context:', error);
+      // Fallback - create minimal context
+      window.g_user = {
+        userName: 'guest',
+        userID: 'guest',
+        firstName: 'Guest',
+        lastName: 'User',
+        email: 'guest@example.com'
+      };
+      window.g_ck = 'fallback_token';
+    });
+  </script>
+  
+  <!-- Main React entry point -->
+  <script src="main.jsx" type="module"></script>
+</head>
+<body>
+  <div id="root">
+    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif;">
+      <div style="text-align: center;">
+        <h1>🚚 Quick Delivery</h1>
+        <p>Loading application...</p>
+        <div style="margin: 20px 0; font-size: 12px; color: #666;">
+          <div>Initializing ServiceNow context...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

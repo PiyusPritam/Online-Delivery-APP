@@ -1,0 +1,158 @@
+.app-header {
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+body.dark-mode .app-header {
+  background: #2d2d2d;
+  border-bottom-color: #404040;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+}
+
+.header-left .app-logo {
+  font-size: 24px;
+  font-weight: 700;
+  color: #007bff;
+  margin: 0;
+}
+
+body.dark-mode .header-left .app-logo {
+  color: #0d6efd;
+}
+
+.header-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #666;
+  font-size: 12px;
+  min-width: 70px;
+}
+
+.nav-item:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+body.dark-mode .nav-item {
+  color: #ccc;
+}
+
+body.dark-mode .nav-item:hover {
+  background-color: #404040;
+  color: #fff;
+}
+
+.nav-item.active {
+  background-color: #007bff;
+  color: white;
+}
+
+body.dark-mode .nav-item.active {
+  background-color: #0d6efd;
+}
+
+.nav-icon {
+  font-size: 18px;
+}
+
+.nav-label {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.dark-mode-toggle {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.dark-mode-toggle:hover {
+  background-color: #f5f5f5;
+}
+
+body.dark-mode .dark-mode-toggle:hover {
+  background-color: #404040;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-greeting {
+  font-weight: 500;
+  color: #333;
+}
+
+body.dark-mode .user-greeting {
+  color: #e0e0e0;
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    flex-direction: column;
+    height: auto;
+    gap: 10px;
+    padding: 10px 0;
+  }
+  
+  .header-nav {
+    order: 1;
+    width: 100%;
+    justify-content: space-around;
+    gap: 4px;
+  }
+  
+  .nav-item {
+    min-width: 60px;
+    font-size: 10px;
+    padding: 6px 8px;
+  }
+  
+  .nav-icon {
+    font-size: 16px;
+  }
+  
+  .header-right {
+    order: 0;
+    width: 100%;
+    justify-content: space-between;
+  }
+}
