@@ -1,451 +1,373 @@
 import React, { useState, useEffect } from 'react';
 import { UserService } from '../services/UserService.js';
 
-export default function Login({ onLogin, debugInfo = [] }) {
+const Login = ({ onLoginSuccess, onError }) => {
+  const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [detailedErrors, setDetailedErrors] = useState([]);
-  const [isNewUser, setIsNewUser] = useState(false);
-  const [authStatus, setAuthStatus] = useState('initializing');
-  const [environmentInfo, setEnvironmentInfo] = useState({});
-  const [localDebugInfo, setLocalDebugInfo] = useState([]);
   const [formData, setFormData] = useState({
     email: '',
+    password: '',
     firstName: '',
     lastName: '',
     phone: ''
   });
-
-  const addDebugInfo = (message) => {
-    console.log('LOGIN DEBUG:', message);
-    setLocalDebugInfo(prev => [...prev, `${new Date().toLocaleTimeString()}: ${message}`]);
-  };
-
+  const [errors, setErrors] = useState({});
+  
   const userService = new UserService();
 
-  // Environment detection on mount
+  // Auto-login check on mount
   useEffect(() => {
-    addDebugInfo('Login component mounted - starting environment detection');
-    detectEnvironment();
-    attemptAuthentication();
+    checkExistingAuth();
   }, []);
 
-  const detectEnvironment = () => {
-    const env = {
-      windowAvailable: typeof window !== 'undefined',
-      location: typeof window !== 'undefined' ? window.location.href : 'N/A',
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'N/A',
-      serviceNowGlobals: {
-        g_user: typeof window !== 'undefined' && !!window.g_user,
-        g_ck: typeof window !== 'undefined' && !!window.g_ck,
-        NOW: typeof window !== 'undefined' && !!window.NOW
-      },
-      domElements: {
-        userMeta: !!document.querySelector('meta[name="user-sys-id"]'),
-        userNameMeta: !!document.querySelector('meta[name="user-name"]'),
-        csrfMeta: !!document.querySelector('meta[name="csrf-token"]'),
-        sessionMeta: !!document.querySelector('meta[name="session-token"]')
-      },
-      cookies: typeof document !== 'undefined' ? document.cookie.split(';').length : 0
-    };
-
-    setEnvironmentInfo(env);
-    addDebugInfo(`Environment detected: ${JSON.stringify(env, null, 2)}`);
-  };
-
-  const attemptAuthentication = async () => {
+  const checkExistingAuth = async () => {
     try {
-      setAuthStatus('authenticating');
-      setError('');
-      setDetailedErrors([]);
-      addDebugInfo('Starting authentication attempt...');
-
+      setLoading(true);
       const user = await userService.getCurrentUser();
-      
-      if (user) {
-        addDebugInfo(`Authentication successful: ${user.name || user.user_name}`);
+      if (user && user.sys_id && user.sys_id !== 'guest') {
+        console.log('Login: Found existing authenticated user:', user);
         
-        // Get customer profile
-        const userId = typeof user.sys_id === 'object' ? user.sys_id.value : user.sys_id;
-        let customerProfile = await userService.getCustomerProfile(userId);
-
-        if (!customerProfile) {
-          addDebugInfo('No customer profile found - switching to new user mode');
-          setIsNewUser(true);
-          setAuthStatus('needs_profile');
-          return;
-        }
-
-        addDebugInfo('Customer profile found - completing authentication');
-        setAuthStatus('authenticated');
-        onLogin({ ...user, customerProfile });
-      } else {
-        throw new Error('No user data returned from authentication service');
-      }
-    } catch (err) {
-      console.error('Authentication failed:', err);
-      addDebugInfo(`Authentication failed: ${err.message}`);
-      
-      setError(err.message);
-      setDetailedErrors(userService.getAuthErrors());
-      setAuthStatus('failed');
-    }
-  };
-
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    
-    addDebugInfo('Profile form submitted');
-
-    try {
-      if (isNewUser) {
-        addDebugInfo('Creating customer profile...');
-        
-        // Get current user first
-        const user = await userService.getCurrentUser();
-        if (!user) {
-          throw new Error('Unable to get current user for profile creation');
-        }
-
-        const userId = typeof user.sys_id === 'object' ? user.sys_id.value : user.sys_id;
-        
-        // Create customer profile
-        const customerProfile = await userService.createCustomerProfile({
-          user_id: userId,
-          email: formData.email,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          phone: formData.phone,
-          active: true
+        // Determine user roles and redirect appropriately
+        const userRoles = await getUserRoles(user.sys_id);
+        onLoginSuccess({
+          ...user,
+          roles: userRoles,
+          name: user.name || `${user.first_name} ${user.last_name}`
         });
-
-        addDebugInfo('Customer profile created successfully');
-        setAuthStatus('authenticated');
-        onLogin({ ...user, customerProfile });
-      } else {
-        // Retry authentication
-        await attemptAuthentication();
       }
-    } catch (err) {
-      const errorMessage = err.message || 'Profile creation failed';
-      addDebugInfo(`Form submission error: ${errorMessage}`);
-      setError(errorMessage);
-      setDetailedErrors(userService.getAuthErrors());
+    } catch (error) {
+      console.log('Login: No existing authentication found:', error.message);
+      // This is expected for unauthenticated users, so no error handling needed
     } finally {
       setLoading(false);
     }
   };
 
-  const renderEnvironmentInfo = () => (
-    <div style={{ 
-      background: '#f8f9fa', 
-      border: '1px solid #dee2e6', 
-      borderRadius: '4px', 
-      padding: '15px', 
-      marginBottom: '20px',
-      fontSize: '12px',
-      fontFamily: 'monospace'
-    }}>
-      <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontFamily: 'Arial, sans-serif' }}>Environment Information</h4>
-      <div><strong>Status:</strong> {authStatus}</div>
-      <div><strong>Location:</strong> {environmentInfo.location}</div>
-      <div><strong>ServiceNow Globals:</strong></div>
-      <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
-        <li>g_user: {environmentInfo.serviceNowGlobals?.g_user ? '✅ Available' : '❌ Missing'}</li>
-        <li>g_ck: {environmentInfo.serviceNowGlobals?.g_ck ? '✅ Available' : '❌ Missing'}</li>
-        <li>NOW: {environmentInfo.serviceNowGlobals?.NOW ? '✅ Available' : '❌ Missing'}</li>
-      </ul>
-      <div><strong>DOM Elements:</strong></div>
-      <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
-        <li>User Meta: {environmentInfo.domElements?.userMeta ? '✅ Found' : '❌ Missing'}</li>
-        <li>CSRF Token: {environmentInfo.domElements?.csrfMeta ? '✅ Found' : '❌ Missing'}</li>
-      </ul>
-      <div><strong>Cookies:</strong> {environmentInfo.cookies} available</div>
-    </div>
-  );
-
-  const renderDetailedErrors = () => {
-    if (detailedErrors.length === 0) return null;
-
-    return (
-      <div style={{ 
-        background: '#fff5f5', 
-        border: '1px solid #fed7d7', 
-        borderRadius: '4px', 
-        padding: '15px', 
-        marginBottom: '20px' 
-      }}>
-        <h4 style={{ margin: '0 0 10px 0', color: '#c53030' }}>Authentication Error Details</h4>
-        <div style={{ maxHeight: '200px', overflow: 'auto' }}>
-          {detailedErrors.map((error, index) => (
-            <div key={index} style={{ 
-              marginBottom: '10px', 
-              padding: '8px', 
-              background: '#fed7d7', 
-              borderRadius: '4px',
-              fontSize: '12px',
-              fontFamily: 'monospace'
-            }}>
-              <div><strong>{error.timestamp} - {error.method}:</strong></div>
-              <div style={{ color: '#c53030' }}>{error.error}</div>
-              {error.statusCode && <div><strong>Status:</strong> {error.statusCode}</div>}
-              {error.details && (
-                <details style={{ marginTop: '5px' }}>
-                  <summary>Technical Details</summary>
-                  <pre style={{ fontSize: '10px', marginTop: '5px', whiteSpace: 'pre-wrap' }}>
-                    {error.details}
-                  </pre>
-                </details>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+  const getUserRoles = async (userId) => {
+    // In a real implementation, this would query the user's roles
+    // For demo purposes, we'll determine based on user data or use defaults
+    try {
+      // Try to determine roles based on user ID pattern or email
+      if (window.g_user?.email) {
+        const email = window.g_user.email.toLowerCase();
+        if (email.includes('admin')) {
+          return ['x_1599224_online_d.customer', 'x_1599224_online_d.store_manager', 'x_1599224_online_d.delivery_admin'];
+        } else if (email.includes('manager')) {
+          return ['x_1599224_online_d.customer', 'x_1599224_online_d.store_manager'];
+        }
+      }
+      
+      // Default to customer role
+      return ['x_1599224_online_d.customer'];
+    } catch (error) {
+      console.log('Login: Error determining user roles:', error);
+      return ['x_1599224_online_d.customer'];
+    }
   };
 
-  const renderRetryButton = () => (
-    <button
-      type="button"
-      onClick={attemptAuthentication}
-      style={{
-        width: '100%',
-        padding: '12px',
-        backgroundColor: '#17a2b8',
-        color: 'white',
-        border: 'none',
-        borderRadius: '4px',
-        fontSize: '16px',
-        cursor: 'pointer',
-        marginBottom: '15px'
-      }}
-    >
-      🔄 Retry Authentication
-    </button>
-  );
+  const validateForm = () => {
+    const newErrors = {};
 
-  // Show loading state during initial authentication
-  if (authStatus === 'initializing' || authStatus === 'authenticating') {
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    if (!isLogin) {
+      if (!formData.firstName) {
+        newErrors.firstName = 'First name is required';
+      }
+      if (!formData.lastName) {
+        newErrors.lastName = 'Last name is required';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
+    setErrors({});
+
+    try {
+      let user;
+      
+      if (isLogin) {
+        // Login process
+        user = await userService.mockLogin(formData.email, formData.password);
+        console.log('Login: Login successful:', user);
+      } else {
+        // Signup process
+        user = await userService.mockSignup({
+          email: formData.email,
+          password: formData.password,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          phone: formData.phone
+        });
+        console.log('Login: Signup successful:', user);
+      }
+
+      // Get user roles
+      const userRoles = await getUserRoles(user.sys_id);
+      
+      // Prepare user data for parent component
+      const userData = {
+        ...user,
+        roles: userRoles,
+        name: user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim()
+      };
+
+      console.log('Login: Prepared user data:', userData);
+      onLoginSuccess(userData);
+
+    } catch (error) {
+      console.error('Login: Authentication failed:', error);
+      setErrors({
+        submit: error.message || 'Authentication failed. Please try again.'
+      });
+      onError?.(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fillDemoCredentials = (type) => {
+    const demoCredentials = {
+      customer: {
+        email: 'customer@demo.com',
+        password: 'demo123'
+      },
+      manager: {
+        email: 'manager@demo.com',
+        password: 'demo123'
+      },
+      admin: {
+        email: 'admin@demo.com',
+        password: 'admin123'
+      }
+    };
+
+    const credentials = demoCredentials[type];
+    setFormData(prev => ({
+      ...prev,
+      email: credentials.email,
+      password: credentials.password
+    }));
+    setErrors({});
+  };
+
+  if (loading) {
     return (
-      <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <h1>🚚 Quick Delivery</h1>
-            <p>{authStatus === 'initializing' ? 'Initializing application...' : 'Authenticating user...'}</p>
-            <div style={{ 
-              border: '4px solid #f3f3f3',
-              borderTop: '4px solid #3498db',
-              borderRadius: '50%',
-              width: '30px',
-              height: '30px',
-              animation: 'spin 2s linear infinite',
-              margin: '10px auto'
-            }}></div>
+      <div className="login-container">
+        <div className="login-content">
+          <div className="login-loading">
+            <div className="loading-spinner"></div>
+            <h2>🚚 Quick Delivery</h2>
+            <p>{isLogin ? 'Signing you in...' : 'Creating your account...'}</p>
           </div>
-
-          {renderEnvironmentInfo()}
-
-          <details style={{ marginTop: '20px' }}>
-            <summary>Initialization Debug Info ({localDebugInfo.length + debugInfo.length} entries)</summary>
-            <div style={{ 
-              background: '#f5f5f5', 
-              padding: '10px', 
-              borderRadius: '4px', 
-              marginTop: '10px',
-              maxHeight: '200px',
-              overflow: 'auto',
-              fontSize: '12px',
-              fontFamily: 'monospace'
-            }}>
-              {[...debugInfo, ...localDebugInfo].map((info, index) => (
-                <div key={index}>{info}</div>
-              ))}
-            </div>
-          </details>
         </div>
-
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <h1>🚚 Quick Delivery</h1>
-          <p>
-            {authStatus === 'failed' && 'Authentication failed. Please review the errors below.'}
-            {authStatus === 'needs_profile' && 'Please complete your profile to continue.'}
-            {authStatus === 'authenticated' && 'Welcome! Completing setup...'}
-          </p>
+    <div className="login-container">
+      <div className="login-content">
+        {/* Hero Section */}
+        <div className="login-hero">
+          <div className="hero-content">
+            <h1 className="hero-title">🚚 Quick Delivery</h1>
+            <p className="hero-subtitle">
+              Fresh groceries and essentials delivered to your doorstep
+            </p>
+            <div className="hero-features">
+              <div className="feature">⚡ Fast Delivery</div>
+              <div className="feature">🌱 Fresh Products</div>
+              <div className="feature">💳 Secure Payments</div>
+            </div>
+          </div>
         </div>
 
-        {renderEnvironmentInfo()}
+        {/* Login Form Section */}
+        <div className="login-form-section">
+          <div className="login-form-container">
+            <div className="form-header">
+              <h2>{isLogin ? 'Welcome Back!' : 'Join Quick Delivery'}</h2>
+              <p>{isLogin ? 'Sign in to your account' : 'Create your account to get started'}</p>
+            </div>
 
-        {error && (
-          <div style={{ 
-            background: '#ffebee', 
-            color: '#c62828', 
-            padding: '15px', 
-            borderRadius: '4px', 
-            marginBottom: '20px',
-            border: '1px solid #ffcdd2'
-          }}>
-            <h4 style={{ margin: '0 0 10px 0' }}>❌ Authentication Error</h4>
-            <p style={{ margin: '0' }}>{error}</p>
-          </div>
-        )}
-
-        {renderDetailedErrors()}
-
-        {authStatus === 'failed' && renderRetryButton()}
-
-        {(authStatus === 'needs_profile' || authStatus === 'failed') && (
-          <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
-            {isNewUser && (
-              <>
-                <div style={{ marginBottom: '15px' }}>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Email Address</label>
-                  <input
-                    type="email"
-                    name="email"
-                    style={{ 
-                      width: '100%', 
-                      padding: '10px', 
-                      border: '1px solid #ddd', 
-                      borderRadius: '4px',
-                      fontSize: '14px'
-                    }}
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                  />
+            <form onSubmit={handleSubmit} className="login-form">
+              {!isLogin && (
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="firstName">First Name</label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      className={errors.firstName ? 'error' : ''}
+                      placeholder="Enter your first name"
+                    />
+                    {errors.firstName && <span className="error-message">{errors.firstName}</span>}
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="lastName">Last Name</label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      className={errors.lastName ? 'error' : ''}
+                      placeholder="Enter your last name"
+                    />
+                    {errors.lastName && <span className="error-message">{errors.lastName}</span>}
+                  </div>
                 </div>
+              )}
 
-                <div style={{ marginBottom: '15px' }}>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>First Name</label>
-                  <input
-                    type="text"
-                    name="firstName"
-                    style={{ 
-                      width: '100%', 
-                      padding: '10px', 
-                      border: '1px solid #ddd', 
-                      borderRadius: '4px',
-                      fontSize: '14px'
-                    }}
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
+              <div className="form-group">
+                <label htmlFor="email">Email Address</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className={errors.email ? 'error' : ''}
+                  placeholder="Enter your email"
+                />
+                {errors.email && <span className="error-message">{errors.email}</span>}
+              </div>
 
-                <div style={{ marginBottom: '15px' }}>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Last Name</label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    style={{ 
-                      width: '100%', 
-                      padding: '10px', 
-                      border: '1px solid #ddd', 
-                      borderRadius: '4px',
-                      fontSize: '14px'
-                    }}
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  className={errors.password ? 'error' : ''}
+                  placeholder="Enter your password"
+                />
+                {errors.password && <span className="error-message">{errors.password}</span>}
+              </div>
 
-                <div style={{ marginBottom: '15px' }}>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Phone Number</label>
+              {!isLogin && (
+                <div className="form-group">
+                  <label htmlFor="phone">Phone Number (Optional)</label>
                   <input
                     type="tel"
+                    id="phone"
                     name="phone"
-                    style={{ 
-                      width: '100%', 
-                      padding: '10px', 
-                      border: '1px solid #ddd', 
-                      borderRadius: '4px',
-                      fontSize: '14px'
-                    }}
                     value={formData.phone}
                     onChange={handleInputChange}
+                    placeholder="Enter your phone number"
                   />
                 </div>
-              </>
+              )}
+
+              {errors.submit && (
+                <div className="error-message submit-error">{errors.submit}</div>
+              )}
+
+              <button type="submit" className="submit-button" disabled={loading}>
+                {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
+              </button>
+            </form>
+
+            {/* Demo Accounts */}
+            {isLogin && (
+              <div className="demo-accounts">
+                <p className="demo-title">Try Demo Accounts:</p>
+                <div className="demo-buttons">
+                  <button 
+                    type="button" 
+                    className="demo-btn customer-demo"
+                    onClick={() => fillDemoCredentials('customer')}
+                  >
+                    🛒 Customer Demo
+                  </button>
+                  <button 
+                    type="button" 
+                    className="demo-btn manager-demo"
+                    onClick={() => fillDemoCredentials('manager')}
+                  >
+                    🏪 Manager Demo
+                  </button>
+                  <button 
+                    type="button" 
+                    className="demo-btn admin-demo"
+                    onClick={() => fillDemoCredentials('admin')}
+                  >
+                    👑 Admin Demo
+                  </button>
+                </div>
+              </div>
             )}
 
-            <button
-              type="submit"
-              style={{
-                width: '100%',
-                padding: '12px',
-                backgroundColor: loading ? '#ccc' : '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                fontSize: '16px',
-                cursor: loading ? 'not-allowed' : 'pointer'
-              }}
-              disabled={loading}
-            >
-              {loading ? 'Please wait...' : (isNewUser ? 'Complete Profile' : 'Continue')}
-            </button>
-          </form>
-        )}
-
-        <details style={{ marginTop: '20px' }}>
-          <summary>Debug Information ({localDebugInfo.length} entries)</summary>
-          <div style={{ 
-            background: '#f5f5f5', 
-            padding: '10px', 
-            borderRadius: '4px', 
-            marginTop: '10px',
-            maxHeight: '200px',
-            overflow: 'auto',
-            fontSize: '12px',
-            fontFamily: 'monospace'
-          }}>
-            {localDebugInfo.map((info, index) => (
-              <div key={index}>{info}</div>
-            ))}
+            {/* Toggle between Login/Signup */}
+            <div className="form-toggle">
+              <p>
+                {isLogin ? "Don't have an account? " : "Already have an account? "}
+                <button
+                  type="button"
+                  className="toggle-button"
+                  onClick={() => {
+                    setIsLogin(!isLogin);
+                    setFormData({
+                      email: '',
+                      password: '',
+                      firstName: '',
+                      lastName: '',
+                      phone: ''
+                    });
+                    setErrors({});
+                  }}
+                >
+                  {isLogin ? 'Sign Up' : 'Sign In'}
+                </button>
+              </p>
+            </div>
           </div>
-        </details>
-
-        <div style={{ 
-          marginTop: '20px', 
-          padding: '15px', 
-          background: '#e3f2fd', 
-          borderRadius: '4px',
-          fontSize: '14px'
-        }}>
-          <h4 style={{ margin: '0 0 10px 0' }}>🛠️ Troubleshooting Tips</h4>
-          <ul style={{ margin: '0', paddingLeft: '20px' }}>
-            <li>Ensure you're accessing the app through ServiceNow (not directly)</li>
-            <li>Check that you're logged into ServiceNow in another tab</li>
-            <li>Try refreshing the page to reinitialize ServiceNow context</li>
-            <li>Clear browser cache and cookies if issues persist</li>
-            <li>Contact system administrator if problems continue</li>
-          </ul>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default Login;

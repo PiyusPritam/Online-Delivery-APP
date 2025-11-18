@@ -24,13 +24,14 @@ export const x_1599224_online_d_product = Table({
                 meat: { label: 'Meat & Seafood', sequence: 4 },
                 beverages: { label: 'Beverages', sequence: 5 },
                 household: { label: 'Household Items', sequence: 6 },
-                personal_care: { label: 'Personal Care', sequence: 7 }
+                personal_care: { label: 'Personal Care', sequence: 7 },
+                spices: { label: 'Spices & Condiments', sequence: 8 }
             },
             dropdown: 'dropdown_with_none',
             mandatory: true
         }),
         price: DecimalColumn({
-            label: 'Price per Unit ($)',
+            label: 'Price per Unit (₹)',
             mandatory: true
         }),
         unit: StringColumn({
@@ -39,9 +40,11 @@ export const x_1599224_online_d_product = Table({
                 piece: { label: 'Per Piece', sequence: 0 },
                 pound: { label: 'Per Pound (lb)', sequence: 1 },
                 kilogram: { label: 'Per Kilogram (kg)', sequence: 2 },
-                liter: { label: 'Per Liter', sequence: 3 },
-                gallon: { label: 'Per Gallon', sequence: 4 },
-                dozen: { label: 'Per Dozen', sequence: 5 }
+                kg: { label: 'Per Kg', sequence: 3 },
+                liter: { label: 'Per Liter', sequence: 4 },
+                litre: { label: 'Per Litre', sequence: 5 },
+                gallon: { label: 'Per Gallon', sequence: 6 },
+                dozen: { label: 'Per Dozen', sequence: 7 }
             },
             dropdown: 'dropdown_with_none',
             default: 'piece'

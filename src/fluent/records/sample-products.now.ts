@@ -2,15 +2,15 @@ import '@servicenow/sdk/global'
 import { Record } from '@servicenow/sdk/core'
 
 // FRUITS
-export const apple_product = Record({
-    $id: Now.ID['apple_prod'],
+export const mango_product = Record({
+    $id: Now.ID['mango_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Fresh Red Apples',
-        description: 'Crisp and sweet red apples, perfect for snacking or baking',
+        name: 'Alphonso Mangoes',
+        description: 'Premium Alphonso mangoes from Ratnagiri, sweet and juicy',
         category: 'fruits',
-        price: 2.99,
-        unit: 'pound',
+        price: 120,
+        unit: 'kg',
         stock_quantity: 50,
         active: true,
         delivery_time_hours: 2
@@ -21,26 +21,26 @@ export const banana_product = Record({
     $id: Now.ID['banana_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Organic Bananas',
-        description: 'Yellow organic bananas, great source of potassium and natural energy',
+        name: 'Robusta Bananas',
+        description: 'Fresh robusta bananas from Kerala, rich in potassium',
         category: 'fruits',
-        price: 1.89,
-        unit: 'pound',
+        price: 40,
+        unit: 'dozen',
         stock_quantity: 75,
         active: true,
         delivery_time_hours: 2
     }
 })
 
-export const strawberry_product = Record({
-    $id: Now.ID['strawberry_prod'],
+export const pomegranate_product = Record({
+    $id: Now.ID['pomegranate_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Fresh Strawberries',
-        description: 'Sweet, juicy strawberries perfect for desserts and snacking',
+        name: 'Maharashtra Pomegranates',
+        description: 'Fresh pomegranates packed with antioxidants, ruby red arils',
         category: 'fruits',
-        price: 4.99,
-        unit: 'piece',
+        price: 180,
+        unit: 'kg',
         stock_quantity: 35,
         active: true,
         delivery_time_hours: 2
@@ -51,11 +51,11 @@ export const orange_product = Record({
     $id: Now.ID['orange_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Naval Oranges',
-        description: 'Sweet and seedless naval oranges, rich in vitamin C',
+        name: 'Nagpur Oranges',
+        description: 'Sweet Nagpur oranges, rich in vitamin C, winter special',
         category: 'fruits',
-        price: 3.49,
-        unit: 'pound',
+        price: 60,
+        unit: 'kg',
         stock_quantity: 45,
         active: true,
         delivery_time_hours: 2
@@ -66,11 +66,11 @@ export const grapes_product = Record({
     $id: Now.ID['grapes_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Red Grapes',
-        description: 'Sweet red grapes, perfect for snacking or wine making',
+        name: 'Nashik Green Grapes',
+        description: 'Sweet seedless green grapes from Nashik vineyards',
         category: 'fruits',
-        price: 3.99,
-        unit: 'pound',
+        price: 80,
+        unit: 'kg',
         stock_quantity: 28,
         active: true,
         delivery_time_hours: 2
@@ -82,12 +82,57 @@ export const tomato_product = Record({
     $id: Now.ID['tomato_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Roma Tomatoes',
-        description: 'Fresh roma tomatoes, perfect for cooking and salads',
+        name: 'Fresh Tomatoes',
+        description: 'Fresh red tomatoes, perfect for curries and salads',
         category: 'vegetables',
-        price: 2.49,
-        unit: 'pound',
+        price: 25,
+        unit: 'kg',
         stock_quantity: 40,
+        active: true,
+        delivery_time_hours: 2
+    }
+})
+
+export const onion_product = Record({
+    $id: Now.ID['onion_prod'],
+    table: 'x_1599224_online_d_product',
+    data: {
+        name: 'Red Onions',
+        description: 'Fresh red onions from Maharashtra, essential for Indian cooking',
+        category: 'vegetables',
+        price: 35,
+        unit: 'kg',
+        stock_quantity: 60,
+        active: true,
+        delivery_time_hours: 2
+    }
+})
+
+export const potato_product = Record({
+    $id: Now.ID['potato_prod'],
+    table: 'x_1599224_online_d_product',
+    data: {
+        name: 'Fresh Potatoes',
+        description: 'Quality potatoes from Punjab, perfect for aloo dishes',
+        category: 'vegetables',
+        price: 20,
+        unit: 'kg',
+        stock_quantity: 80,
+        active: true,
+        delivery_time_hours: 2
+    }
+})
+
+export const okra_product = Record({
+    $id: Now.ID['okra_prod'],
+    table: 'x_1599224_online_d_product',
+    data: {
+        name: 'Lady Finger (Okra)',
+        description: 'Fresh bhindi/okra, tender and perfect for bhindi masala',
+        category: 'vegetables',
+        price: 40,
+        unit: 'kg',
+        stock_quantity: 25,
         active: true,
         delivery_time_hours: 2
     }
@@ -97,57 +142,12 @@ export const spinach_product = Record({
     $id: Now.ID['spinach_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Baby Spinach',
-        description: 'Tender baby spinach leaves, great for salads and smoothies',
+        name: 'Palak (Spinach)',
+        description: 'Fresh green spinach leaves, ideal for palak paneer',
         category: 'vegetables',
-        price: 3.99,
-        unit: 'piece',
-        stock_quantity: 20,
-        active: true,
-        delivery_time_hours: 2
-    }
-})
-
-export const carrots_product = Record({
-    $id: Now.ID['carrots_prod'],
-    table: 'x_1599224_online_d_product',
-    data: {
-        name: 'Fresh Carrots',
-        description: 'Crunchy organic carrots, high in beta-carotene',
-        category: 'vegetables',
-        price: 1.99,
-        unit: 'pound',
-        stock_quantity: 55,
-        active: true,
-        delivery_time_hours: 2
-    }
-})
-
-export const broccoli_product = Record({
-    $id: Now.ID['broccoli_prod'],
-    table: 'x_1599224_online_d_product',
-    data: {
-        name: 'Fresh Broccoli',
-        description: 'Green broccoli crowns, packed with vitamins and fiber',
-        category: 'vegetables',
-        price: 2.79,
-        unit: 'piece',
-        stock_quantity: 32,
-        active: true,
-        delivery_time_hours: 2
-    }
-})
-
-export const lettuce_product = Record({
-    $id: Now.ID['lettuce_prod'],
-    table: 'x_1599224_online_d_product',
-    data: {
-        name: 'Iceberg Lettuce',
-        description: 'Crisp iceberg lettuce, perfect for salads and sandwiches',
-        category: 'vegetables',
-        price: 1.49,
-        unit: 'piece',
-        stock_quantity: 25,
+        price: 30,
+        unit: 'kg',
+        stock_quantity: 35,
         active: true,
         delivery_time_hours: 2
     }
@@ -158,178 +158,193 @@ export const milk_product = Record({
     $id: Now.ID['milk_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Whole Milk',
-        description: 'Fresh whole milk from local dairy farms, rich and creamy',
+        name: 'Amul Full Cream Milk',
+        description: 'Fresh full cream milk from Amul, rich and creamy',
         category: 'dairy',
-        price: 4.29,
-        unit: 'gallon',
-        stock_quantity: 30,
+        price: 30,
+        unit: 'litre',
+        stock_quantity: 50,
         active: true,
         delivery_time_hours: 1
     }
 })
 
-export const cheese_product = Record({
-    $id: Now.ID['cheese_prod'],
+export const paneer_product = Record({
+    $id: Now.ID['paneer_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Cheddar Cheese',
-        description: 'Sharp aged cheddar cheese, perfect for sandwiches and cooking',
+        name: 'Fresh Paneer',
+        description: 'Homemade style fresh paneer, perfect for curries',
         category: 'dairy',
-        price: 5.99,
-        unit: 'piece',
-        stock_quantity: 22,
-        active: true,
-        delivery_time_hours: 1
-    }
-})
-
-export const yogurt_product = Record({
-    $id: Now.ID['yogurt_prod'],
-    table: 'x_1599224_online_d_product',
-    data: {
-        name: 'Greek Yogurt',
-        description: 'Thick and creamy Greek yogurt, high in protein',
-        category: 'dairy',
-        price: 6.49,
-        unit: 'piece',
-        stock_quantity: 18,
-        active: true,
-        delivery_time_hours: 1
-    }
-})
-
-export const butter_product = Record({
-    $id: Now.ID['butter_prod'],
-    table: 'x_1599224_online_d_product',
-    data: {
-        name: 'Unsalted Butter',
-        description: 'Premium unsalted butter, perfect for baking and cooking',
-        category: 'dairy',
-        price: 4.79,
-        unit: 'piece',
-        stock_quantity: 26,
-        active: true,
-        delivery_time_hours: 1
-    }
-})
-
-// MEAT & SEAFOOD
-export const chicken_product = Record({
-    $id: Now.ID['chicken_prod'],
-    table: 'x_1599224_online_d_product',
-    data: {
-        name: 'Chicken Breast',
-        description: 'Fresh boneless, skinless chicken breast, lean and tender',
-        category: 'meat',
-        price: 8.99,
-        unit: 'pound',
+        price: 320,
+        unit: 'kg',
         stock_quantity: 15,
         active: true,
         delivery_time_hours: 1
     }
 })
 
-export const beef_product = Record({
-    $id: Now.ID['beef_prod'],
+export const curd_product = Record({
+    $id: Now.ID['curd_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Ground Beef',
-        description: '80/20 ground beef, perfect for burgers and tacos',
+        name: 'Fresh Curd (Dahi)',
+        description: 'Thick and creamy fresh curd, probiotic-rich',
+        category: 'dairy',
+        price: 60,
+        unit: 'kg',
+        stock_quantity: 30,
+        active: true,
+        delivery_time_hours: 1
+    }
+})
+
+export const ghee_product = Record({
+    $id: Now.ID['ghee_prod'],
+    table: 'x_1599224_online_d_product',
+    data: {
+        name: 'Pure Cow Ghee',
+        description: 'Pure cow ghee from Amul, perfect for cooking and sweets',
+        category: 'dairy',
+        price: 550,
+        unit: 'kg',
+        stock_quantity: 20,
+        active: true,
+        delivery_time_hours: 1
+    }
+})
+
+// MEAT & SEAFOOD (Chicken and Fish popular in India)
+export const chicken_product = Record({
+    $id: Now.ID['chicken_prod'],
+    table: 'x_1599224_online_d_product',
+    data: {
+        name: 'Fresh Chicken (Murgi)',
+        description: 'Fresh chicken pieces, cleaned and cut, perfect for curry',
         category: 'meat',
-        price: 7.99,
-        unit: 'pound',
+        price: 180,
+        unit: 'kg',
+        stock_quantity: 25,
+        active: true,
+        delivery_time_hours: 1
+    }
+})
+
+export const mutton_product = Record({
+    $id: Now.ID['mutton_prod'],
+    table: 'x_1599224_online_d_product',
+    data: {
+        name: 'Fresh Mutton (Bakra)',
+        description: 'Fresh mutton pieces, perfect for biryani and curry',
+        category: 'meat',
+        price: 650,
+        unit: 'kg',
+        stock_quantity: 15,
+        active: true,
+        delivery_time_hours: 1
+    }
+})
+
+export const fish_product = Record({
+    $id: Now.ID['fish_prod'],
+    table: 'x_1599224_online_d_product',
+    data: {
+        name: 'Pomfret Fish',
+        description: 'Fresh pomfret fish, cleaned and cut, excellent for fish curry',
+        category: 'meat',
+        price: 400,
+        unit: 'kg',
         stock_quantity: 12,
         active: true,
         delivery_time_hours: 1
     }
 })
 
-export const salmon_product = Record({
-    $id: Now.ID['salmon_prod'],
+// GROCERIES & STAPLES
+export const basmati_rice_product = Record({
+    $id: Now.ID['basmati_rice_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Atlantic Salmon',
-        description: 'Fresh Atlantic salmon fillets, rich in omega-3',
-        category: 'meat',
-        price: 12.99,
-        unit: 'pound',
-        stock_quantity: 8,
-        active: true,
-        delivery_time_hours: 1
-    }
-})
-
-// GROCERIES
-export const bread_product = Record({
-    $id: Now.ID['bread_prod'],
-    table: 'x_1599224_online_d_product',
-    data: {
-        name: 'Whole Wheat Bread',
-        description: 'Freshly baked whole wheat bread, rich in fiber',
+        name: 'Basmati Rice',
+        description: 'Premium aged basmati rice, long grain, perfect for biryani',
         category: 'groceries',
-        price: 3.49,
-        unit: 'piece',
-        stock_quantity: 25,
+        price: 150,
+        unit: 'kg',
+        stock_quantity: 100,
         active: true,
         delivery_time_hours: 3
     }
 })
 
-export const rice_product = Record({
-    $id: Now.ID['rice_prod'],
+export const wheat_flour_product = Record({
+    $id: Now.ID['wheat_flour_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Jasmine Rice',
-        description: 'Premium jasmine rice, perfect for Asian dishes',
+        name: 'Aashirvaad Atta (Wheat Flour)',
+        description: 'Premium whole wheat flour for making rotis and parathas',
         category: 'groceries',
-        price: 4.99,
-        unit: 'piece',
+        price: 45,
+        unit: 'kg',
+        stock_quantity: 80,
+        active: true,
+        delivery_time_hours: 3
+    }
+})
+
+export const toor_dal_product = Record({
+    $id: Now.ID['toor_dal_prod'],
+    table: 'x_1599224_online_d_product',
+    data: {
+        name: 'Toor Dal (Arhar Dal)',
+        description: 'High-quality toor dal, protein-rich pigeon pea lentils',
+        category: 'groceries',
+        price: 120,
+        unit: 'kg',
+        stock_quantity: 60,
+        active: true,
+        delivery_time_hours: 3
+    }
+})
+
+export const cooking_oil_product = Record({
+    $id: Now.ID['cooking_oil_prod'],
+    table: 'x_1599224_online_d_product',
+    data: {
+        name: 'Sunflower Oil',
+        description: 'Refined sunflower cooking oil, heart-healthy option',
+        category: 'groceries',
+        price: 140,
+        unit: 'litre',
         stock_quantity: 40,
         active: true,
         delivery_time_hours: 3
     }
 })
 
-export const pasta_product = Record({
-    $id: Now.ID['pasta_prod'],
+// SPICES & MASALAS
+export const turmeric_product = Record({
+    $id: Now.ID['turmeric_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Spaghetti Pasta',
-        description: 'Classic Italian spaghetti pasta made from durum wheat',
-        category: 'groceries',
-        price: 2.99,
+        name: 'Haldi (Turmeric Powder)',
+        description: 'Pure turmeric powder, essential for Indian cooking',
+        category: 'spices',
+        price: 80,
         unit: 'piece',
-        stock_quantity: 35,
+        stock_quantity: 50,
         active: true,
-        delivery_time_hours: 3
+        delivery_time_hours: 2
     }
 })
 
-export const cereal_product = Record({
-    $id: Now.ID['cereal_prod'],
+export const garam_masala_product = Record({
+    $id: Now.ID['garam_masala_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Honey Nut Cereal',
-        description: 'Crunchy honey nut cereal, fortified with vitamins',
-        category: 'groceries',
-        price: 5.49,
-        unit: 'piece',
-        stock_quantity: 28,
-        active: true,
-        delivery_time_hours: 3
-    }
-})
-
-// BEVERAGES
-export const juice_product = Record({
-    $id: Now.ID['juice_prod'],
-    table: 'x_1599224_online_d_product',
-    data: {
-        name: 'Orange Juice',
-        description: 'Freshly squeezed orange juice, no pulp, vitamin C enriched',
-        category: 'beverages',
-        price: 5.99,
+        name: 'MDH Garam Masala',
+        description: 'Aromatic garam masala blend, perfect for curries',
+        category: 'spices',
+        price: 45,
         unit: 'piece',
         stock_quantity: 35,
         active: true,
@@ -337,14 +352,60 @@ export const juice_product = Record({
     }
 })
 
-export const coffee_product = Record({
-    $id: Now.ID['coffee_prod'],
+export const red_chili_product = Record({
+    $id: Now.ID['red_chili_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Premium Coffee Beans',
-        description: 'Arabica coffee beans, medium roast, rich flavor',
+        name: 'Lal Mirch (Red Chili Powder)',
+        description: 'Hot and spicy red chili powder from Guntur',
+        category: 'spices',
+        price: 120,
+        unit: 'kg',
+        stock_quantity: 40,
+        active: true,
+        delivery_time_hours: 2
+    }
+})
+
+// BEVERAGES
+export const tea_product = Record({
+    $id: Now.ID['tea_prod'],
+    table: 'x_1599224_online_d_product',
+    data: {
+        name: 'Tata Tea Gold',
+        description: 'Premium black tea blend, perfect for Indian chai',
         category: 'beverages',
-        price: 12.99,
+        price: 450,
+        unit: 'kg',
+        stock_quantity: 25,
+        active: true,
+        delivery_time_hours: 2
+    }
+})
+
+export const coconut_water_product = Record({
+    $id: Now.ID['coconut_water_prod'],
+    table: 'x_1599224_online_d_product',
+    data: {
+        name: 'Fresh Coconut Water',
+        description: 'Natural tender coconut water, refreshing and healthy',
+        category: 'beverages',
+        price: 35,
+        unit: 'piece',
+        stock_quantity: 30,
+        active: true,
+        delivery_time_hours: 2
+    }
+})
+
+export const lassi_product = Record({
+    $id: Now.ID['lassi_prod'],
+    table: 'x_1599224_online_d_product',
+    data: {
+        name: 'Mango Lassi',
+        description: 'Traditional mango lassi made with fresh curd and mangoes',
+        category: 'beverages',
+        price: 60,
         unit: 'piece',
         stock_quantity: 20,
         active: true,
@@ -352,29 +413,14 @@ export const coffee_product = Record({
     }
 })
 
-export const soda_product = Record({
-    $id: Now.ID['soda_prod'],
+export const mineral_water_product = Record({
+    $id: Now.ID['mineral_water_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Cola Soft Drink',
-        description: 'Classic cola soft drink, 12-pack cans',
+        name: 'Bisleri Mineral Water',
+        description: 'Pure mineral water, 1 litre bottles, pack of 12',
         category: 'beverages',
-        price: 6.99,
-        unit: 'piece',
-        stock_quantity: 42,
-        active: true,
-        delivery_time_hours: 2
-    }
-})
-
-export const water_product = Record({
-    $id: Now.ID['water_prod'],
-    table: 'x_1599224_online_d_product',
-    data: {
-        name: 'Spring Water',
-        description: 'Pure spring water, 24-pack bottles',
-        category: 'beverages',
-        price: 4.99,
+        price: 120,
         unit: 'piece',
         stock_quantity: 50,
         active: true,
@@ -387,27 +433,12 @@ export const detergent_product = Record({
     $id: Now.ID['detergent_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Laundry Detergent',
-        description: 'High-efficiency laundry detergent, fresh scent, 64 loads',
+        name: 'Ariel Washing Powder',
+        description: 'High-quality washing powder for all fabric types',
         category: 'household',
-        price: 12.99,
-        unit: 'piece',
-        stock_quantity: 18,
-        active: true,
-        delivery_time_hours: 4
-    }
-})
-
-export const paper_towels_product = Record({
-    $id: Now.ID['paper_towels_prod'],
-    table: 'x_1599224_online_d_product',
-    data: {
-        name: 'Paper Towels',
-        description: 'Ultra-absorbent paper towels, 8-pack rolls',
-        category: 'household',
-        price: 8.99,
-        unit: 'piece',
-        stock_quantity: 24,
+        price: 280,
+        unit: 'kg',
+        stock_quantity: 25,
         active: true,
         delivery_time_hours: 4
     }
@@ -417,12 +448,12 @@ export const dish_soap_product = Record({
     $id: Now.ID['dish_soap_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Dish Soap',
-        description: 'Grease-cutting dish soap, lemon scent',
+        name: 'Vim Dishwash Liquid',
+        description: 'Powerful dishwashing liquid with lemon freshness',
         category: 'household',
-        price: 3.49,
-        unit: 'piece',
-        stock_quantity: 32,
+        price: 185,
+        unit: 'litre',
+        stock_quantity: 30,
         active: true,
         delivery_time_hours: 4
     }
@@ -432,12 +463,27 @@ export const toilet_paper_product = Record({
     $id: Now.ID['toilet_paper_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Toilet Paper',
-        description: 'Ultra-soft toilet paper, 12-pack double rolls',
+        name: 'Charmin Toilet Rolls',
+        description: 'Soft and strong toilet paper rolls, pack of 8',
         category: 'household',
-        price: 11.99,
+        price: 320,
         unit: 'piece',
-        stock_quantity: 16,
+        stock_quantity: 20,
+        active: true,
+        delivery_time_hours: 4
+    }
+})
+
+export const broom_product = Record({
+    $id: Now.ID['broom_prod'],
+    table: 'x_1599224_online_d_product',
+    data: {
+        name: 'Coconut Broom (Jhadu)',
+        description: 'Traditional coconut fiber broom for floor cleaning',
+        category: 'household',
+        price: 60,
+        unit: 'piece',
+        stock_quantity: 15,
         active: true,
         delivery_time_hours: 4
     }
@@ -448,12 +494,12 @@ export const shampoo_product = Record({
     $id: Now.ID['shampoo_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Natural Shampoo',
-        description: 'Sulfate-free natural shampoo for all hair types, moisturizing',
+        name: 'Pantene Pro-V Shampoo',
+        description: 'Nourishing shampoo for strong and healthy hair',
         category: 'personal_care',
-        price: 8.49,
+        price: 285,
         unit: 'piece',
-        stock_quantity: 22,
+        stock_quantity: 25,
         active: true,
         delivery_time_hours: 3
     }
@@ -463,42 +509,42 @@ export const toothpaste_product = Record({
     $id: Now.ID['toothpaste_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Whitening Toothpaste',
-        description: 'Fluoride toothpaste with whitening action, mint flavor',
+        name: 'Colgate Total Toothpaste',
+        description: 'Advanced protection toothpaste with neem and clove',
         category: 'personal_care',
-        price: 4.99,
+        price: 95,
         unit: 'piece',
-        stock_quantity: 38,
+        stock_quantity: 40,
         active: true,
         delivery_time_hours: 3
     }
 })
 
-export const deodorant_product = Record({
-    $id: Now.ID['deodorant_prod'],
+export const soap_product = Record({
+    $id: Now.ID['soap_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Antiperspirant Deodorant',
-        description: '24-hour protection antiperspirant deodorant, fresh scent',
+        name: 'Lifebuoy Soap',
+        description: 'Antibacterial soap with natural ingredients, pack of 4',
         category: 'personal_care',
-        price: 5.49,
+        price: 120,
         unit: 'piece',
-        stock_quantity: 26,
+        stock_quantity: 35,
         active: true,
         delivery_time_hours: 3
     }
 })
 
-export const body_wash_product = Record({
-    $id: Now.ID['body_wash_prod'],
+export const hair_oil_product = Record({
+    $id: Now.ID['hair_oil_prod'],
     table: 'x_1599224_online_d_product',
     data: {
-        name: 'Moisturizing Body Wash',
-        description: 'Gentle moisturizing body wash with aloe vera',
+        name: 'Parachute Coconut Oil',
+        description: 'Pure coconut hair oil for strong and healthy hair',
         category: 'personal_care',
-        price: 6.99,
+        price: 180,
         unit: 'piece',
-        stock_quantity: 19,
+        stock_quantity: 30,
         active: true,
         delivery_time_hours: 3
     }
